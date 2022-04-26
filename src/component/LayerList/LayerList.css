@@ -1,0 +1,14 @@
+.selectedItem {
+    background: #212121;
+    box-shadow: 0 2px 5px #ffff;
+}
+
+/*.selectedItem:after {*/
+/*    content: '';*/
+/*    height: 72px;*/
+/*    width: 15px;*/
+/*    background: #f00;*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    right: -5px;*/
+/*}*/
