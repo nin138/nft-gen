@@ -1,66 +1,77 @@
 import React, {useRef} from "react";
 import {Layer} from "../../data/layer/layer";
-import {Box, Paper, styled, TextField} from "@mui/material";
+import { Paper, styled, TextField} from "@mui/material";
 import {ImgDropZone} from "./ImgDropZone";
 import {LayerActionCreator} from "../../data/layer/layerStore";
 import {LayerItemEditor} from "./Item/LayerItem";
-import {useDraggable} from "react-use-draggable-scroll";
+import {Draggable, Droppable} from "react-beautiful-dnd";
+import {DragIcon} from "../Icons";
+import {DragIconWrap} from "../Atoms/DragIcon";
+import {scrollbarStyle} from "../Atoms/scrollbarStyle";
 
 
-const Head = styled('div')({
+const Header = styled('div')({
   display: 'flex',
+  alignItems: "flex-start",
+  justifyContent: "space-between",
+});
+const HeaderLeft = styled('div')({
+  display: 'flex',
+  justifyContent: "space-between",
   alignItems: "center",
 });
 
 type Props = {
   layer: Layer
   la: LayerActionCreator
+  index: number
 }
 
 const Container = styled(Paper)({
   width: '90vw',
   margin: '24px auto',
-  padding: 24,
+  padding: 12,
 });
 
 
 const ItemContainer = styled(Paper)({
   userSelect: "none",
   display: "flex",
-  margin: '24px auto 0',
-  padding: 24,
+  margin: '8px auto 0',
+  padding: '8px 24px',
   overflowX: 'scroll',
   width: '100%',
-  '&::-webkit-scrollbar': {
-    height: '8px',
-    width: '8px',
-
-  },
-  '&::-webkit-scrollbar-thumb': {
-    borderRadius: 8,
-    background: '#222',
-  },
-  '&::-webkit-scrollbar-track': {
-    borderRadius: 8,
-    background: '#555',
-  },
-  '&::-webkit-scrollbar-corner': {
-    display: 'none',
-  },
+  ...scrollbarStyle,
 });
 
-export const LayerEditor: React.FC<Props> = ({layer, la}) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { events } = useDraggable(ref as any, { applyRubberBandEffect: true });
+export const LayerEditor: React.FC<Props> = ({layer, la, index}) => {
   return (
-    <Container elevation={6}>
-      <Head>
-        <TextField label={'layer'} size={"small"} value={layer.name} onChange={event => la.updateLayer(layer.layerId, l => ({ ...l, name: event.target.value }))} />
-        <ImgDropZone layerId={layer.layerId} la={la} />
-      </Head>
-      <ItemContainer {...events} ref={ref}>
-        {layer.items.map(it => <LayerItemEditor key={it.itemId} layerId={layer.layerId} item={it} la={la} />)}
-      </ItemContainer>
-    </Container>
-  );
+    <Draggable draggableId={layer.layerId} index={index}>
+      {provided => (
+        <Container id={layer.layerId} elevation={6} ref={provided.innerRef} {...provided.draggableProps}>
+          <Header>
+            <HeaderLeft>
+              <TextField label={'layer'} size={"small"} value={layer.name} onChange={event => la.updateLayer(layer.layerId, l => ({ ...l, name: event.target.value }))} />
+              <ImgDropZone layerId={layer.layerId} la={la} />
+            </HeaderLeft>
+            <DragIconWrap {...provided.dragHandleProps} elevation={4}>
+              <DragIcon fontSize={'medium'} />
+            </DragIconWrap>
+
+          </Header>
+          <Droppable droppableId={layer.layerId} direction={"horizontal"} type={`LayerItem`}>
+            {
+              (drop) => (
+                <ItemContainer ref={drop.innerRef} elevation={2} {...drop.droppableProps}>
+                  {layer.items.map((it, i) => <LayerItemEditor key={it.itemId} layerId={layer.layerId} item={it} la={la} index={i} />)}
+                  {drop.placeholder}
+                </ItemContainer>
+              )
+            }
+          </Droppable>
+        </Container>
+      )}
+    </Draggable>
+  )
+
 };
