@@ -38,6 +38,8 @@ const ActionTypes = {
   SwapLayerItem: 'SwapLayerItem',
   BeforeUnload: 'BeforeUnload',
   OnRestore: 'OnRestore',
+  RmLayer: 'RmLayer',
+  RmLayerItem: 'RmLayerItem',
 } as const;
 
 type AddLayer = {
@@ -85,7 +87,18 @@ type OnRestore = {
   layers: Layers
 }
 
-type Actions = AddLayer | UpdateLayer | AddLayerItem | UpdateLayerItem | SwapLayer | SwapLayerItem | BeforeUnload | OnRestore;
+type RmLayer = {
+  type: typeof ActionTypes.RmLayer
+  layerId: LayerId,
+}
+
+type RmLayerItem = {
+  type: typeof ActionTypes.RmLayerItem
+  layerId: LayerId,
+  layerItemId: LayerItemId,
+}
+
+type Actions = AddLayer | UpdateLayer | AddLayerItem | UpdateLayerItem | SwapLayer | SwapLayerItem | BeforeUnload | OnRestore | RmLayer | RmLayerItem;
 
 const updateLayer = (layers: Layers, layerId: LayerId, action: (layer: Layer) => Layer): Layers => layers.map(it => it.layerId !== layerId ? it : action(it));
 const updateLayerItem = (layer: Layer, itemId: LayerItemId, action: (layer: LayerItem) => LayerItem): Layer => ({
@@ -107,7 +120,7 @@ const reducer = (layers: Layers, action: Actions): Layers => {
   switch (action.type) {
     case ActionTypes.AddLayer: return [...layers, createLayer( `Layer${layers.length}`)];
     case ActionTypes.UpdateLayer: return updateLayer(layers, action.layerId, action.action);
-    case ActionTypes.AddLayerItem: return updateLayer(layers, action.layerId, layer => ({...layer, items: [...layer.items, createLayerItem(`item${layer.items.length}`, action.image) ]}))
+    case ActionTypes.AddLayerItem: return updateLayer(layers, action.layerId, layer => ({...layer, items: [...layer.items, createLayerItem(action.image.name.split('.').slice(0, -1).join('.'), action.image) ]}))
     case ActionTypes.UpdateLayerItem: return updateLayer(layers, action.layerId, layer => updateLayerItem(layer, action.layerItemId, action.action));
     case ActionTypes.SwapLayer: return swap(layers, findLayerIndex(layers, action.from), findLayerIndex(layers, action.to));
     case ActionTypes.SwapLayerItem: return updateLayer(layers, action.layerId, layer => ({
@@ -118,8 +131,14 @@ const reducer = (layers: Layers, action: Actions): Layers => {
       if(PREV_DATA_LOADED) LayerStorage.save(layers);
       return layers;
     }
-    case ActionTypes.OnRestore: {
-      return action.layers;
+    case ActionTypes.OnRestore: return action.layers;
+    case ActionTypes.RmLayer: {
+      // TODO rm ImageStorage
+      return layers.filter(it => it.layerId !== action.layerId);
+    }
+    case ActionTypes.RmLayerItem: {
+      // TODO rm ImageStorage
+      return updateLayer(layers, action.layerId, layer => ({...layer, items: layer.items.filter(it => it.itemId !== action.layerItemId)}));
     }
   }
 };
@@ -164,6 +183,18 @@ export class LayerActionCreator {
     layerId,
     from,
     to,
+  });
+
+  rmLayer = (layerId: LayerId) => this.dd({
+    type: ActionTypes.RmLayer,
+    layerId,
+  });
+
+
+  rmLayerItem = (layerId: LayerId, layerItemId: LayerItemId) => this.dd({
+    type: ActionTypes.RmLayerItem,
+    layerId,
+    layerItemId,
   });
 }
 
