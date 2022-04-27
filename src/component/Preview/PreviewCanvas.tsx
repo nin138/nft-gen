@@ -9,6 +9,7 @@ type Props = {
 }
 
 const Canvas = styled("canvas")({
+  display: 'block',
   width: '100%',
 });
 
@@ -17,12 +18,13 @@ export const PreviewCanvas: React.FC<Props> = ({size, images}) => {
   useEffect(() => {
     if(!ref.current) return;
     const ctx = ref.current.getContext('2d')!;
-    ctx.clearRect(0, 0, size.w, size.h);
+    // ctx.clearRect(0, 0, size.w, size.h);
     images.forEach(it => {
       const image = new Image();
       image.src = it.dataUrl;
       image.onload = () => ctx.drawImage(image, 0, 0, size.w, size.h);
     },)
+    return () => ctx.clearRect(0, 0, size.w, size.h);
   }, [size, images, ref])
   return (
       <Canvas width={size.w} height={size.h} ref={ref} />
