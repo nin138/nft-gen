@@ -7,7 +7,7 @@ export const HEADER_HEIGHT = '60px';
 
 const H = styled('header')`
   height: ${HEADER_HEIGHT};
-  background: ${theme.palette.primary.main};
+  background: #666;
   box-shadow: 2px 2px 5px #aaaf;
   position: sticky;
 `;

@@ -18,9 +18,10 @@ const LayerList = styled('div')({
 type Props = {
   layers: Layer[]
   la: LayerActionCreator;
+  usedCount: number[][]
 }
 
-export const Editor: React.FC<Props> = ({layers, la}) => {
+export const Editor: React.FC<Props> = ({layers, la, usedCount}) => {
   const [dragging, setDragging] = useState(false);
 
   const onBeforeDragStart: DragDropContextProps['onBeforeDragStart'] = useCallback(() => {
@@ -49,7 +50,7 @@ export const Editor: React.FC<Props> = ({layers, la}) => {
         <Droppable droppableId={'Layer'} type={'Layer'}>
           {(drop) => (
             <LayerList ref={drop.innerRef} {...drop.droppableProps}>
-              {layers.map((it, i) => (<LayerEditor key={it.layerId} layer={it} la={la} index={i} />))}
+              {layers.map((it, i) => (<LayerEditor key={it.layerId} layer={it} la={la} index={i} usedCount={usedCount[i]} />))}
               <AddLayer la={la} />
               {drop.placeholder}
             </LayerList>

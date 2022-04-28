@@ -8,14 +8,16 @@ export type Size = {
 export type Config = {
   name: string
   size: Size
+  numberOfToken: number;
 }
 
-const defaultConfig = {
+const defaultConfig: Config = {
   name: 'NFT',
   size: {
     w: 600,
     h: 600,
   },
+  numberOfToken: 100,
 }
 
 const KEY = 'CONFIG_KEY';

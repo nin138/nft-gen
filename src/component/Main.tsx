@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 import {useLayers} from "../data/layer/layerStore";
 import {Editor} from "./Editor/Editor";
 import {Fab, Modal, styled} from "@mui/material";
@@ -6,6 +6,7 @@ import {PreviewIcon} from "./Icons";
 import {useConfig} from "../data/configStore";
 import {GeneralEditor} from "./Layer/General";
 import {Preview} from "./Preview/Preview";
+import {countUsed, getPicked, indexToItem} from "../logics/combine/getAll";
 
 const FloatingButtonArea = styled('section')({
   position: "fixed",
@@ -26,12 +27,14 @@ export const Main: React.FC = () => {
   const {config, setConfig} = useConfig();
   const {loading, la, layers} = useLayers();
   const [preview, setPreview] = useState(false);
+  const picked = useMemo(() => getPicked(layers, config.numberOfToken), [layers, config]);
+  const used = useMemo(() => countUsed(layers, picked), [layers, picked]);
   if (loading) return <p>Loading...</p>
 
   return (
     <div>
-      <GeneralEditor config={config} setConfig={setConfig} />
-      <Editor layers={layers} la={la} />
+      <GeneralEditor config={config} setConfig={setConfig} layers={layers} />
+      <Editor layers={layers} la={la} usedCount={used} />
       <FloatingButtonArea>
         <PreviewButton color={"primary"} variant="extended" onClick={() => setPreview(!preview)}>
           <PreviewIcon sx={{ mr: 1 }} />
@@ -39,7 +42,7 @@ export const Main: React.FC = () => {
         </PreviewButton>
       </FloatingButtonArea>
 
-      <Preview open={preview} config={config} layers={layers} />
+      <Preview open={preview} config={config} layers={layers} items={picked} />
     </div>
   );
 };

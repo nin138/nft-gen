@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {styled} from "@mui/material";
 import {Size} from "../../data/configStore";
-import {Image as A} from "../../logics/imageStorage";
+import {LayerItem} from "../../data/layer/layer";
 
 type Props = {
   size: Size
-  images: A[]
+  items: LayerItem[]
 }
 
 const Canvas = styled("canvas")({
@@ -13,19 +13,19 @@ const Canvas = styled("canvas")({
   width: '100%',
 });
 
-export const PreviewCanvas: React.FC<Props> = ({size, images}) => {
+export const PreviewCanvas: React.FC<Props> = ({size, items}) => {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
     if(!ref.current) return;
     const ctx = ref.current.getContext('2d')!;
-    // ctx.clearRect(0, 0, size.w, size.h);
-    images.forEach(it => {
+    ctx.clearRect(0, 0, size.w, size.h);
+    items.forEach(it => {
       const image = new Image();
-      image.src = it.dataUrl;
+      image.src = it.image.dataUrl;
       image.onload = () => ctx.drawImage(image, 0, 0, size.w, size.h);
     },)
     return () => ctx.clearRect(0, 0, size.w, size.h);
-  }, [size, images, ref])
+  }, [size, items, ref])
   return (
       <Canvas width={size.w} height={size.h} ref={ref} />
   );

@@ -20,6 +20,7 @@ type Props = {
   item: LayerItem
   la: LayerActionCreator
   index: number
+  usedCount: number;
 }
 
 const Container = styled(Card)({
@@ -29,7 +30,7 @@ const Container = styled(Card)({
   padding: 12,
 })
 
-export const LayerItemEditor: React.FC<Props> = ({layerId, item, la, index}) => {
+export const LayerItemEditor: React.FC<Props> = ({layerId, item, la, index, usedCount}) => {
   return (
     <Draggable draggableId={item.itemId} index={index}>
       {provided => (
@@ -40,6 +41,9 @@ export const LayerItemEditor: React.FC<Props> = ({layerId, item, la, index}) => 
               <DragIcon fontSize={'medium'} />
             </DragIconWrap>
           </Header>
+          <div>
+            {usedCount}
+          </div>
           <img width={180} height={'auto'} src={item.image.dataUrl} />
         </Container>
       )}
