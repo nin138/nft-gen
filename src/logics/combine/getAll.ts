@@ -1,10 +1,11 @@
 import {Layer, LayerItem} from "../../data/layer/layer";
-import {createItemNum, isUnique} from "./combine";
+import {createItemNum} from "./combine";
+import {applyFilters, Filter} from "../../data/Filter";
 
 
 export type ItemIndexes = number[];
 
-export const getAll = (layers: Layer[]): ItemIndexes[] => {
+export const getAll = (layers: Layer[], filters: Filter[]): ItemIndexes[] => {
   const ls = layers.filter(it => it.items.length !== 0);
   const result: number[][] = [];
 
@@ -19,12 +20,14 @@ export const getAll = (layers: Layer[]): ItemIndexes[] => {
     rec(carry, l, i + 1);
   }
   rec([], 0, 0);
-  return result;
+  return  applyFilters(result, layers, filters);
 };
 
 const restToValue = (rest: number) => rest < 1 ? -500 : rest;
 
-const pick = (layers: Layer[], indexes: ItemIndexes[], numberOfToken: number) => {
+export const pick = (layers: Layer[], _indexes: ItemIndexes[], numberOfToken: number) => {
+  if(_indexes.length < numberOfToken) return [];
+  const indexes = [..._indexes];
   const rest = createItemNum(layers, numberOfToken);
   const evaluate = (it: ItemIndexes) => { return it.reduce((prev, current, l) => prev + restToValue(rest[l][current]), 0) };
 
@@ -42,13 +45,6 @@ const pick = (layers: Layer[], indexes: ItemIndexes[], numberOfToken: number) =>
   // if(!isUnique(result)) throw new Error('????');
   return result;
 }
-
-
-export const getPicked = (layers: Layer[], numberOfToken: number): ItemIndexes[] => {
-  const all = getAll(layers);
-  if(all.length < numberOfToken) return [];
-  return pick(layers, all, numberOfToken);
-};
 
 export const countUsed = (layers: Layer[], indexes: ItemIndexes[]) => {
   const result = layers.map(layer => layer.items.map(_ => 0));

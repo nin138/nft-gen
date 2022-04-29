@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {styled} from "@mui/material";
 import {Size} from "../../data/configStore";
 import {LayerItem} from "../../data/layer/layer";
+import {renderCanvas} from "../../logics/images/toZip";
 
 type Props = {
   size: Size
@@ -19,11 +20,7 @@ export const PreviewCanvas: React.FC<Props> = ({size, items}) => {
     if(!ref.current) return;
     const ctx = ref.current.getContext('2d')!;
     ctx.clearRect(0, 0, size.w, size.h);
-    items.forEach(it => {
-      const image = new Image();
-      image.src = it.image.dataUrl;
-      image.onload = () => ctx.drawImage(image, 0, 0, size.w, size.h);
-    },)
+    renderCanvas(ctx, size, items)
     return () => ctx.clearRect(0, 0, size.w, size.h);
   }, [size, items, ref])
   return (

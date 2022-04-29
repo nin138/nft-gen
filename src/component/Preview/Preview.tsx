@@ -6,7 +6,7 @@ import {scrollbarStyle} from "../Atoms/scrollbarStyle";
 import {PreviewCanvas} from "./PreviewCanvas";
 import {useElementRect} from "../useElementRect";
 import {FixedSizeList, ListChildComponentProps} from 'react-window';
-import {getPicked, indexToItem, ItemIndexes} from "../../logics/combine/getAll";
+import { indexToItem, ItemIndexes} from "../../logics/combine/getAll";
 type Props = {
   open: boolean;
   config: Config
@@ -71,10 +71,9 @@ const CanvasFooter = styled('div')({
   height: FOOTER_HEIGHT,
 });
 export const Preview: React.FC<Props> = ({open, config, layers, items}) => {
-
   const lines = useMemo(() => {
     return sliceArray(indexToItem(layers, items), COLUMN_NUM);
-  }, [items]);
+  }, [items, layers]);
   const ref = useRef(null);
   const rect = useElementRect(ref);
   const lineHeight = calcLineHeight(rect?.width || 0, config.size);

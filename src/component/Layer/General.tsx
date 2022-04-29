@@ -6,14 +6,14 @@ import {Layer} from "../../data/layer/layer";
 type Props = {
   config: Config
   setConfig: (conf: Config) => void;
-  layers: Layer[];
+  generatable: number;
 }
 
 const Container = styled('section')({
   margin: 16,
 });
 
-export const GeneralEditor: React.FC<Props> = ({config, setConfig, layers}) => {
+export const GeneralEditor: React.FC<Props> = ({config, setConfig, generatable}) => {
   return (
     <Container>
       <TextField
@@ -26,7 +26,7 @@ export const GeneralEditor: React.FC<Props> = ({config, setConfig, layers}) => {
       <TextField type={'number'} label={'height'} value={config.size.h} onChange={e => setConfig({...config, size: { w: config.size.w, h: +e.target.value }})} />
       <br />
       <TextField type={'number'} label={'number of token'} value={config.numberOfToken} onChange={e => setConfig({...config, numberOfToken: +e.target.value})} />
-      Generatable number: {layers.reduce((previousValue, currentValue) => previousValue * currentValue.items.length, 1)}
+      Generatable number: {generatable}
     </Container>
   );
 }

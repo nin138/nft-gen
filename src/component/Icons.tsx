@@ -1,7 +1,9 @@
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined';
 import PreviewSharpIcon from '@mui/icons-material/PreviewSharp';
+import ImageIcon from '@mui/icons-material/Image';
 
 export const DeleteIcon = DeleteForeverIcon;
 export const DragIcon = DragIndicatorOutlinedIcon;
 export const PreviewIcon = PreviewSharpIcon;
+export const CreateImageIcon = ImageIcon;

@@ -10,20 +10,22 @@ export const createZip = () => {
   };
 }
 
-export const renderCanvas = (ctx: CanvasRenderingContext2D, size: Size, items: LayerItem[]) => {
+const renderImage =  (ctx: CanvasRenderingContext2D, size: Size, item: LayerItem) => {
   return new Promise(resolve => {
-    let i = items.length;
-    ctx.clearRect(0, 0, size.w, size.h);
-    items.forEach(it => {
-      const image = new Image();
-      image.src = it.image.dataUrl;
-      image.onload = () => {
-        ctx.drawImage(image, 0, 0, size.w, size.h);
-        i -= 1;
-        if(i === 0) resolve(true);
-      }
-    })
+    const image = new Image();
+    image.src = item.image.dataUrl;
+    image.onload = () => {
+      ctx.drawImage(image, 0, 0, size.w, size.h);
+      resolve(true);
+    }
   })
+}
+
+export const renderCanvas = async (ctx: CanvasRenderingContext2D, size: Size, items: LayerItem[]) => {
+  ctx.clearRect(0, 0, size.w, size.h);
+  for (let item of items) {
+    await renderImage(ctx, size, item);
+  }
 }
 
 export const canvasToBlob = (canvas: HTMLCanvasElement): Promise<Blob> => {
