@@ -85,7 +85,7 @@ export const Preview: React.FC<Props> = ({open, config, layers, items}) => {
       {lines[index].map((item, j) => (
         <ItemContainer key={`${index}_${j}`} elevation={4}>
           <PreviewCanvas size={config.size} items={item} />
-          <CanvasFooter>{config.name} #{index * COLUMN_NUM + j}</CanvasFooter>
+          <CanvasFooter>{config.name} #{index * COLUMN_NUM + j + 1}</CanvasFooter>
         </ItemContainer>
       ))}
     </Line>
