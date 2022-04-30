@@ -35,6 +35,15 @@ export type FilterCompiled = UseWithFilterCompiled | NoopFilter;
 export const findLayerIndexById = (layers: Layer[], id: LayerId): number => layers.findIndex(it => it.layerId === id);
 export const findLayerItemIndexById = (layers: Layer[], layerIndex: number, id: LayerItemId): number => layers[layerIndex].items.findIndex(it => it.itemId === id);
 
+export const isUseWithFilterValid = (filter: UseWithFilter, layers: Layer[]): boolean => {
+  const l1 = findLayerIndexById(layers, filter.l1);
+  const l2 = findLayerIndexById(layers, filter.l2);
+  if(l1 === -1 || l2 === -1 || l1 === l2) {
+    return false;
+  }
+  if(!layers[l1].items.find(it => it.itemId === filter.i1) || !layers[l2].items.find(it => it.itemId === filter.i2)) return false;
+  return true;
+};
 
 export const compileUseWithFilter = (filter: UseWithFilter, layers: Layer[]) => {
   const l1 = findLayerIndexById(layers, filter.l1);

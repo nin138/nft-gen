@@ -58,7 +58,6 @@ export const LayerEditor: React.FC<Props> = ({layer, la, index, usedCount}) => {
             <DragIconWrap {...provided.dragHandleProps} elevation={4}>
               <DragIcon fontSize={'medium'} />
             </DragIconWrap>
-
           </Header>
           <Droppable droppableId={layer.layerId} direction={"horizontal"} type={`LayerItem`}>
             {

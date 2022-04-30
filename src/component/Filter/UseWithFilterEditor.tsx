@@ -1,7 +1,7 @@
 import React from "react";
 import {Layer, LayerId, LayerItemId} from "../../data/layer/layer";
 import {
-  Filter,
+  Filter, isUseWithFilterValid,
   UseWithFilter,
 } from "../../data/Filter";
 import {Button, Paper, styled} from "@mui/material";
@@ -17,6 +17,7 @@ const Container = styled(Paper)({
 
 const Items = styled('div')({
   display: "flex",
+  alignItems: 'center',
 });
 
 const Item = styled(Paper)({
@@ -57,31 +58,43 @@ export const UseWithFilterEditor: React.FC<Props> = ({layers, filter, remove, up
   const l2 = layers.find(it => it.layerId === filter.l2);
   const i2 = l2?.items.find(it => it.itemId === filter.i2);
 
-  const layerSelectItems = layers.filter(it => it.items.length !== 0 ).map(it => ({ label: it.name, value: it.layerId }));
-
+  const layerSelectItems = layers.filter(it => it.items.length !== 0).map(it => ({label: it.name, value: it.layerId}));
+  const isValid = isUseWithFilterValid(filter, layers);
   return (
-    <Container elevation={4}>
+    <Container elevation={4} style={{background: isValid ? undefined : '#a00'}}>
+      <div>
+      NAND FILTER { isValid ? '' : '(INVALID)' }
       <Items>
-      <Item>
-        <Img src={i1?.image.dataUrl} />
-        <Select value={l1?.layerId || ''} onChange={(v) =>  updateFilter({...filter, l1: v as LayerId, i1: findLayer(layers, v as LayerId)!.items[0].itemId})}>
-          {layerSelectItems}
-        </Select>
-        <Select value={i1?.itemId || ''} onChange={(v) =>  updateFilter({...filter, i1: v as LayerItemId})}>
-          {l1?.items.map(it => ({ label: it.name, value: it.itemId })) || []}
-        </Select>
-      </Item>
-      <Item>
-        <Img src={i2?.image.dataUrl} />
-        <Select value={l2?.layerId || ''} onChange={(v) =>  updateFilter({...filter, l2: v as LayerId, i2: findLayer(layers, v as LayerId)!.items[0].itemId})}>
-          {layerSelectItems}
-        </Select>
-        <Select value={i2?.itemId || ''} onChange={(v) =>  updateFilter({...filter, i2: v as LayerItemId})}>
-          {l2?.items.map(it => ({ label: it.name, value: it.itemId })) || []}
-        </Select>
-      </Item>
+        <Item>
+          <Img src={i1?.image.dataUrl} />
+          <Select value={l1?.layerId || ''} onChange={(v) => updateFilter({
+            ...filter,
+            l1: v as LayerId,
+            i1: findLayer(layers, v as LayerId)!.items[0].itemId
+          })}>
+            {layerSelectItems}
+          </Select>
+          <Select value={i1?.itemId || ''} onChange={(v) => updateFilter({...filter, i1: v as LayerItemId})}>
+            {l1?.items.map(it => ({label: it.name, value: it.itemId})) || []}
+          </Select>
+        </Item>
+        <div>AND</div>
+        <Item>
+          <Img src={i2?.image.dataUrl}/>
+          <Select value={l2?.layerId || ''} onChange={(v) => updateFilter({
+            ...filter,
+            l2: v as LayerId,
+            i2: findLayer(layers, v as LayerId)!.items[0].itemId
+          })}>
+            {layerSelectItems}
+          </Select>
+          <Select value={i2?.itemId || ''} onChange={(v) => updateFilter({...filter, i2: v as LayerItemId})}>
+            {l2?.items.map(it => ({label: it.name, value: it.itemId})) || []}
+          </Select>
+        </Item>
       </Items>
-      <DelButton variant={"outlined"} onClick={remove}><DeleteIcon /></DelButton>
+      </div>
+      <DelButton variant={"outlined"} onClick={remove}><DeleteIcon/></DelButton>
     </Container>
   );
 }

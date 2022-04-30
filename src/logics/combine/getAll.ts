@@ -2,10 +2,9 @@ import {Layer, LayerItem} from "../../data/layer/layer";
 import {createItemNum} from "./combine";
 import {applyFilters, Filter} from "../../data/Filter";
 
-
 export type ItemIndexes = number[];
 
-export const getAll = (layers: Layer[], filters: Filter[]): ItemIndexes[] => {
+export const getAll = (layers: Layer[], filters: Filter[], fixedIndexes: ItemIndexes[]): ItemIndexes[] => {
   const ls = layers.filter(it => it.items.length !== 0);
   const result: number[][] = [];
 
@@ -20,7 +19,10 @@ export const getAll = (layers: Layer[], filters: Filter[]): ItemIndexes[] => {
     rec(carry, l, i + 1);
   }
   rec([], 0, 0);
-  return  applyFilters(result, layers, filters);
+
+  const filtered = fixedIndexes.map(it => it.toString()).reduce((prev, current) => prev.filter(it => it.toString() !== current), result)
+
+  return  applyFilters(filtered, layers, filters);
 };
 
 const restToValue = (rest: number) => rest < 1 ? -500 : rest;

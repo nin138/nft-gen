@@ -10,6 +10,8 @@ import {countUsed, getAll, indexToItem, pick} from "../logics/combine/getAll";
 import {canvasToBlob, createZip, renderCanvas} from "../logics/images/toZip";
 import {Filters} from "./Filter/Filters";
 import {useFilter} from "../data/filterStore";
+import {FixedImageList} from "./FixedItems/FixedImageList";
+import {useFixedImage} from "../data/fixedItems";
 
 const Container = styled('div')({
   width: '90%',
@@ -38,12 +40,19 @@ export const Main: React.FC = () => {
   const {loading, la, layers} = useLayers();
   const [preview, setPreview] = useState(false);
   const [creating, setCreating] = useState(false);
+  const {images, actions} = useFixedImage();
   const f = useFilter();
-  const all = useMemo(() => getAll(layers, f.filters), [f.filters, layers])
-  const picked = useMemo(() => pick(layers, all, config.numberOfToken), [layers, config, all]);
-  const used = useMemo(() => countUsed(layers, picked), [layers, picked]);
+  const fixedIndexes = useMemo(() => images
+    .map(image => image.items.map((i, l) => layers[l]?.items.findIndex(it => it.itemId === i)))
+    .filter(it => !it.includes(-1)), [images, layers]);
+  const all = useMemo(() => getAll(layers, f.filters, fixedIndexes), [f.filters, fixedIndexes, layers])
+  const picked = useMemo(() => pick(layers, all, config.numberOfToken - fixedIndexes.length), [layers, config, all]);
+  const indexes = useMemo(() => [...fixedIndexes, ...picked], [fixedIndexes, picked])
+  const used = useMemo(() => countUsed(layers, indexes), [layers, indexes]);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const aEl = useRef<HTMLAnchorElement>(null);
+  console.log('f', fixedIndexes, indexes);
+  console.log('i', indexes);
 
   if (loading) return <p>Loading...</p>
 
@@ -52,7 +61,7 @@ export const Main: React.FC = () => {
     const zip = createZip();
     const canvas = canvasEl.current!;
     const ctx = canvas.getContext('2d')!;
-    const itemList = indexToItem(layers, picked);
+    const itemList = indexToItem(layers, indexes);
     let i = 1;
     for(let items of itemList) {
       await renderCanvas(ctx, config.size, items);
@@ -69,6 +78,7 @@ export const Main: React.FC = () => {
   return (
     <Container>
       <GeneralEditor config={config} setConfig={setConfig} generatable={all.length} />
+      <FixedImageList images={images} actions={actions} layers={layers} config={config} />
       <Filters layers={layers} f={f} />
       <Editor layers={layers} la={la} usedCount={used} />
       <FloatingButtonArea>
@@ -77,13 +87,11 @@ export const Main: React.FC = () => {
           Preview
         </FloatingButton>
         <FloatingButton disabled={creating || all.length < config.numberOfToken } color={"secondary"} variant="extended" onClick={handleCreateImage}>
-
           <CreateImageIcon sx={{ mr: 1 }} />
           Create Images
         </FloatingButton>
       </FloatingButtonArea>
-
-      <Preview open={preview} config={config} layers={layers} items={all.length >= config.numberOfToken ? picked : []} />
+      <Preview open={preview} config={config} layers={layers} items={all.length >= config.numberOfToken ? indexes : []} />
       <canvas style={{display: "none"}} ref={canvasEl} width={config.size.w} height={config.size.h} />
       <a ref={aEl} style={{display: "none"}} />
     </Container>
