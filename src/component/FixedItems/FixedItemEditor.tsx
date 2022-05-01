@@ -2,11 +2,13 @@ import React from "react";
 import {FixedImage, FixedImageActions} from "../../data/fixedItems";
 import {Layer, LayerItem, LayerItemId,} from "../../data/layer/layer";
 import {Config, } from "../../data/configStore";
-import {Button, Paper, styled} from "@mui/material";
+import {Paper, styled} from "@mui/material";
 import {Select} from "../Atoms/Select";
-import { DeleteIcon } from "../Icons";
 import {PreviewCanvas} from "../Preview/PreviewCanvas";
 import {scrollbarStyle} from "../Atoms/scrollbarStyle";
+import {Draggable, Droppable} from "react-beautiful-dnd";
+import {DragIcon} from "../Icons";
+import {DragIconWrap} from "../Atoms/DragIcon";
 
 const Container = styled(Paper)({
   display: 'flex',
@@ -60,7 +62,6 @@ export const FixedItemEditor: React.FC<Props> = ({image, _layers, config, index,
   const items = image.items.map((i, l) => layers[l]?.items.find(it => it.itemId === i));
   const valid = !items.includes(undefined);
 
-
   const update = (index: number) => (value: string) => {
     action.update(image.id, {
       id: image.id,
@@ -68,27 +69,36 @@ export const FixedItemEditor: React.FC<Props> = ({image, _layers, config, index,
     });
   }
   return (
-    <Container elevation={4} style={{background: valid ? undefined : '#a00'}}>
-        <Items>
-          <Item elevation={4}>
-            {valid && (
-              <CanvasContainer>
-                <PreviewCanvas size={config.size} items={items as LayerItem[]} />
-              </CanvasContainer>
-            )}
-            <p>{config.name} #{index + 1}</p>
-          </Item>
-          <ScrollContainer elevation={4}>
-          {layers.map((item, l) => (
-            <Item key={l}>
-              <Img src={items[l]?.image.dataUrl} />
-              <Select value={items[l]?.itemId || ''} onChange={update(l)}>
-                {layers[l].items.map(it => ({label: it.name, value: it.itemId})) || []}
-              </Select>
-            </Item>
-          ))}
-          </ScrollContainer>
-        </Items>
-    </Container>
+    <Draggable draggableId={image.id} index={index}>
+      {
+        drag => (
+          <Container elevation={4} {...drag.draggableProps} ref={drag.innerRef}>
+            <Items>
+              <Item elevation={4} style={{backgroundColor: valid ? undefined : '#f00'}}>
+                {valid && (
+                  <CanvasContainer>
+                    <PreviewCanvas size={config.size} items={items as LayerItem[]} />
+                  </CanvasContainer>
+                )}
+                <p>{config.name} #{index + 1}</p>
+              </Item>
+              <ScrollContainer elevation={4}>
+                {layers.map((item, l) => (
+                  <Item key={l}>
+                    <Img src={items[l]?.image.dataUrl} />
+                    <Select value={items[l]?.itemId || ''} onChange={update(l)}>
+                      {layers[l].items.map(it => ({label: it.name, value: it.itemId})) || []}
+                    </Select>
+                  </Item>
+                ))}
+              </ScrollContainer>
+              <DragIconWrap {...drag.dragHandleProps} elevation={4}>
+                <DragIcon fontSize={'medium'} />
+              </DragIconWrap>
+            </Items>
+          </Container>
+        )
+      }
+    </Draggable>
   )
 }

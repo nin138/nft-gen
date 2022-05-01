@@ -117,7 +117,7 @@ const updateLayerItem = (layer: Layer, itemId: LayerItemId, action: (layer: Laye
   items: layer.items.map(it => it.itemId !== itemId ? it : action(it))
 });
 
-const reorder = <T extends unknown>(arr: T[], fromIndex: number, toIndex: number): T[] => {
+export const reorder = <T extends unknown>(arr: T[], fromIndex: number, toIndex: number): T[] => {
   const result = [...arr];
   const [removed] = result.splice(fromIndex, 1);
   result.splice(toIndex, 0, removed);

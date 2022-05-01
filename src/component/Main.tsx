@@ -1,4 +1,4 @@
-import React, {useMemo, useRef, useState} from "react";
+import React, {useCallback, useMemo, useRef, useState} from "react";
 import {useLayers} from "../data/layer/layerStore";
 import {Editor} from "./Editor/Editor";
 import {Fab, styled} from "@mui/material";
@@ -11,7 +11,10 @@ import {canvasToBlob, createZip, renderCanvas} from "../logics/images/toZip";
 import {Filters} from "./Filter/Filters";
 import {useFilter} from "../data/filterStore";
 import {FixedImageList} from "./FixedItems/FixedImageList";
-import {useFixedImage} from "../data/fixedItems";
+import {FixedItemId, useFixedImage} from "../data/fixedItems";
+import {DragDropContext, DragDropContextProps} from "react-beautiful-dnd";
+import {LayerId, LayerItemId} from "../data/layer/layer";
+import {DeleteDroppable} from "./Atoms/DeleteDroppable";
 
 const Container = styled('div')({
   width: '90%',
@@ -51,8 +54,32 @@ export const Main: React.FC = () => {
   const used = useMemo(() => countUsed(layers, indexes), [layers, indexes]);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const aEl = useRef<HTMLAnchorElement>(null);
-  console.log('f', fixedIndexes, indexes);
-  console.log('i', indexes);
+
+  const [dragging, setDragging] = useState(false);
+
+  const onBeforeDragStart: DragDropContextProps['onBeforeDragStart'] = useCallback(() => {
+    setDragging(true);
+  }, []);
+
+  const onDragEnd: DragDropContextProps['onDragEnd'] = useCallback((result, provided) => {
+    setDragging(false);
+    if (!result.destination) return;
+    if(result.destination.droppableId === 'DFI') {
+      actions.remove(result.draggableId as FixedItemId)
+    }
+    else if(result.destination.droppableId === 'FixedItem') {
+      actions.swap(result.source.index, result.destination.index);
+    }
+    else if (result.destination.droppableId === 'DLL') {
+      la.rmLayer(result.draggableId as LayerId);
+    } else if (result.destination.droppableId === 'Layer') {
+      la.swapLayer(result.source.index, result.destination?.index);
+    } else if (result.destination.droppableId === 'DLI') {
+      la.rmLayerItem(result.source.droppableId as LayerId, result.draggableId as LayerItemId);
+    } else {
+      la.swapLayerItem(result.source.droppableId as LayerId, result.destination.droppableId as LayerId, result.source.index, result.destination.index)
+    }
+  }, [actions, la]);
 
   if (loading) return <p>Loading...</p>
 
@@ -63,37 +90,41 @@ export const Main: React.FC = () => {
     const ctx = canvas.getContext('2d')!;
     const itemList = indexToItem(layers, indexes);
     let i = 1;
-    for(let items of itemList) {
+    for (let items of itemList) {
       await renderCanvas(ctx, config.size, items);
       zip.addFile(`${i}.png`, await canvasToBlob(canvas));
       i++;
     }
     const data = await zip.create();
-    const url = window.URL.createObjectURL(data as any);
-    aEl.current!.href = url;
+    aEl.current!.href = window.URL.createObjectURL(data as any);
     aEl.current!.click();
     setCreating(false);
   }
 
   return (
-    <Container>
-      <GeneralEditor config={config} setConfig={setConfig} generatable={all.length} />
-      <FixedImageList images={images} actions={actions} layers={layers} config={config} />
-      <Filters layers={layers} f={f} />
-      <Editor layers={layers} la={la} usedCount={used} />
-      <FloatingButtonArea>
-        <FloatingButton color={"primary"} variant="extended" onClick={() => setPreview(!preview)}>
-          <PreviewIcon sx={{ mr: 1 }} />
-          Preview
-        </FloatingButton>
-        <FloatingButton disabled={creating || all.length < config.numberOfToken } color={"secondary"} variant="extended" onClick={handleCreateImage}>
-          <CreateImageIcon sx={{ mr: 1 }} />
-          Create Images
-        </FloatingButton>
-      </FloatingButtonArea>
-      <Preview open={preview} config={config} layers={layers} items={all.length >= config.numberOfToken ? indexes : []} />
-      <canvas style={{display: "none"}} ref={canvasEl} width={config.size.w} height={config.size.h} />
-      <a ref={aEl} style={{display: "none"}} />
-    </Container>
+    <DragDropContext onBeforeDragStart={onBeforeDragStart} onDragEnd={onDragEnd}>
+      <Container>
+        <GeneralEditor config={config} setConfig={setConfig} generatable={all.length}/>
+        <FixedImageList images={images} actions={actions} layers={layers} config={config}/>
+        <Filters layers={layers} f={f}/>
+        <Editor layers={layers} la={la} usedCount={used}/>
+        <FloatingButtonArea>
+          <FloatingButton color={"primary"} variant="extended" onClick={() => setPreview(!preview)}>
+            <PreviewIcon sx={{mr: 1}}/>
+            Preview
+          </FloatingButton>
+          <FloatingButton disabled={creating || all.length < config.numberOfToken} color={"secondary"}
+                          variant="extended" onClick={handleCreateImage}>
+            <CreateImageIcon sx={{mr: 1}}/>
+            Create Images
+          </FloatingButton>
+        </FloatingButtonArea>
+        <Preview open={preview} config={config} layers={layers}
+                 items={all.length >= config.numberOfToken ? indexes : []}/>
+        <canvas style={{display: "none"}} ref={canvasEl} width={config.size.w} height={config.size.h}/>
+        <a ref={aEl} style={{display: "none"}}/>
+      </Container>
+      <DeleteDroppable dragging={dragging}/>
+    </DragDropContext>
   );
 };
