@@ -49,7 +49,7 @@ export const Main: React.FC = () => {
     .map(image => image.items.map((i, l) => layers[l]?.items.findIndex(it => it.itemId === i)))
     .filter(it => !it.includes(-1)), [images, layers]);
   const all = useMemo(() => getAll(layers, f.filters, fixedIndexes), [f.filters, fixedIndexes, layers])
-  const picked = useMemo(() => pick(layers, all, config.numberOfToken - fixedIndexes.length), [layers, config, all]);
+  const picked = useMemo(() => pick(layers, all, config.numberOfToken - fixedIndexes.length), [layers, all, config.numberOfToken, fixedIndexes.length]);
   const indexes = useMemo(() => [...fixedIndexes, ...picked], [fixedIndexes, picked])
   const used = useMemo(() => countUsed(layers, indexes), [layers, indexes]);
   const canvasEl = useRef<HTMLCanvasElement>(null);
@@ -104,7 +104,7 @@ export const Main: React.FC = () => {
   return (
     <DragDropContext onBeforeDragStart={onBeforeDragStart} onDragEnd={onDragEnd}>
       <Container>
-        <GeneralEditor config={config} setConfig={setConfig} generatable={all.length}/>
+        <GeneralEditor config={config} setConfig={setConfig} generatable={all.length + fixedIndexes.length}/>
         <FixedImageList images={images} actions={actions} layers={layers} config={config}/>
         <Filters layers={layers} f={f}/>
         <Editor layers={layers} la={la} usedCount={used}/>
