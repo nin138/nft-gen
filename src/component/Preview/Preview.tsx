@@ -6,13 +6,10 @@ import {scrollbarStyle} from "../Atoms/scrollbarStyle";
 import {PreviewCanvas} from "./PreviewCanvas";
 import {useElementRect} from "../useElementRect";
 import {FixedSizeList, ListChildComponentProps} from 'react-window';
-import { indexToItem, ItemIndexes} from "../../logics/combine/getAll";
-type Props = {
-  open: boolean;
-  config: Config
-  layers: Layer[]
-  items: ItemIndexes[]
-}
+import {compileFilters, Filter, FilterCompiled} from "../../data/Filter";
+import {ItemIndexes} from "../../logics/createImages/types";
+import {createImageData} from "../../logics/createImages/createImageData";
+import {countUsed, indexToItem} from "../../logics/createImages/getAllAndPick";
 
 const Container = styled('section')({
   width: '94vw',
@@ -22,6 +19,20 @@ const Container = styled('section')({
   boxShadow: '0 0 10px #fff7',
   transition: 'all 200ms ease-in-out',
   position: 'fixed',
+  top: 0,
+  left: '3vw',
+  borderRadius: '5px',
+  zIndex: 100,
+  flexWrap: 'wrap',
+  display: 'flex',
+  alignItems: 'flex-start'
+});
+
+const ScrollContainer = styled('section')({
+  width: '100%',
+  height: '70vh',
+  margin: "auto",
+  boxShadow: '0 0 10px #fff7',
   top: 0,
   left: '3vw',
   borderRadius: '5px',
@@ -56,7 +67,7 @@ const Line = styled('div')({
   width: '100%',
 });
 
-const sliceArray = <T extends unknown>(arr: T[], num: number): T[][]  => {
+export const sliceArray = <T extends unknown>(arr: T[], num: number): T[][]  => {
   const len = Math.ceil(arr.length / num);
   return [...Array(len).keys()].map(i => arr.slice(i* num, i * num + num));
 }
@@ -70,10 +81,26 @@ const calcLineHeight = (containerW: number, size: Size) => {
 const CanvasFooter = styled('div')({
   height: FOOTER_HEIGHT,
 });
-export const Preview: React.FC<Props> = ({open, config, layers, items}) => {
+
+
+type Props = {
+  open: boolean;
+  config: Config
+  layers: Layer[]
+  fixed: ItemIndexes[]
+  filters: FilterCompiled[]
+
+}
+export const Preview: React.FC<Props> = ({open, config, layers, filters, fixed}) => {
+  const data = useMemo(() => {
+    return createImageData(layers, config.numberOfToken, filters, fixed); //calcAllItem(fixed, layers, all, config.numberOfToken);
+  }, [filters, config.numberOfToken, fixed, layers]);
+
   const lines = useMemo(() => {
-    return sliceArray(indexToItem(layers, items), COLUMN_NUM);
-  }, [items, layers]);
+    return sliceArray(indexToItem(layers, data), COLUMN_NUM);
+  }, [layers, data]);
+  const used = useMemo(() => countUsed(layers, data), [layers, data]);
+
   const ref = useRef(null);
   const rect = useElementRect(ref);
   const lineHeight = calcLineHeight(rect?.width || 0, config.size);
@@ -92,10 +119,29 @@ export const Preview: React.FC<Props> = ({open, config, layers, items}) => {
 
   return (
     <Container style={{transform: !open ? 'translateY(105vh)': 'translateY(6vh)' }} ref={ref}>
-      {lines.length === 0 && 'Please add more Items'}
-      <List itemSize={lineHeight} height={listHeight} itemCount={lines.length} width={'100%'}>
-        {Row}
-      </List>
+      {
+        used.map((items, l) => {
+          const layer = layers[l];
+          return (
+            <div key={layer.layerId}>
+            {layer.name}
+            {items.map((used, i) => {
+              const item = layer.items[i];
+              return(
+                <div key={item.itemId}>
+                  {item.name}: {used}
+                </div>
+              )
+            })}
+          </div>)
+        })
+      }
+      <ScrollContainer>
+        {lines.length === 0 && 'Please add more Items'}
+        <List itemSize={lineHeight} height={listHeight} itemCount={lines.length} width={'100%'}>
+          {Row}
+        </List>
+      </ScrollContainer>
     </Container>
   );
 };

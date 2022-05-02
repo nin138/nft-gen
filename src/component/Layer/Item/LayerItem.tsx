@@ -1,5 +1,5 @@
 import React from "react";
-import {Box, Card, styled, TextField} from "@mui/material";
+import {Card, Slider, styled, TextField} from "@mui/material";
 import {LayerActionCreator} from "../../../data/layer/layerStore";
 import {LayerId, LayerItem} from "../../../data/layer/layer";
 import {DragIconWrap} from "../../Atoms/DragIcon";
@@ -20,7 +20,6 @@ type Props = {
   item: LayerItem
   la: LayerActionCreator
   index: number
-  usedCount: number;
 }
 
 const Container = styled(Card)({
@@ -30,7 +29,7 @@ const Container = styled(Card)({
   padding: 12,
 })
 
-export const LayerItemEditor: React.FC<Props> = ({layerId, item, la, index, usedCount}) => {
+export const LayerItemEditor: React.FC<Props> = ({layerId, item, la, index}) => {
   return (
     <Draggable draggableId={item.itemId} index={index}>
       {provided => (
@@ -42,7 +41,8 @@ export const LayerItemEditor: React.FC<Props> = ({layerId, item, la, index, used
             </DragIconWrap>
           </Header>
           <div>
-            {usedCount}
+            weight: {item.weight}
+            <Slider value={item.weight} min={1} max={100} onChange={(_, v) => la.updateLayerItem(layerId, item.itemId, l => ({...l, weight: v as number}))} />
           </div>
           <img width={180} height={'auto'} src={item.image.dataUrl} />
         </Container>

@@ -25,7 +25,6 @@ type Props = {
   layer: Layer
   la: LayerActionCreator
   index: number
-  usedCount: number[]
 }
 
 const Container = styled(Paper)({
@@ -45,7 +44,7 @@ const ItemContainer = styled(Paper)({
   ...scrollbarStyle,
 });
 
-export const LayerEditor: React.FC<Props> = ({layer, la, index, usedCount}) => {
+export const LayerEditor: React.FC<Props> = ({layer, la, index}) => {
   return (
     <Draggable draggableId={layer.layerId} index={index}>
       {provided => (
@@ -63,7 +62,7 @@ export const LayerEditor: React.FC<Props> = ({layer, la, index, usedCount}) => {
             {
               (drop) => (
                 <ItemContainer ref={drop.innerRef} elevation={2} {...drop.droppableProps}>
-                  {layer.items.map((it, i) => <LayerItemEditor key={it.itemId} layerId={layer.layerId} item={it} la={la} index={i} usedCount={usedCount[i]} />)}
+                  {layer.items.map((it, i) => <LayerItemEditor key={it.itemId} layerId={layer.layerId} item={it} la={la} index={i} />)}
                   {drop.placeholder}
                 </ItemContainer>
               )

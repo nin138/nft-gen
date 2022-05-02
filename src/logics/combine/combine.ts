@@ -32,6 +32,13 @@ export const createItemNum = (layers: Layer[], numberOfToken: number): ItemNum =
   })
 }
 
+export const createItemRemaining = (layers: Layer[], numberOfToken: number) => {
+  return layers.map(layer => {
+    const weights = numberOfToken / layer.items.reduce((prev, current) => prev + current.weight, 0);
+    return layer.items.map((item) => weights * item.weight)
+  });
+}
+
 // @return imageUrl[][]
 export const combine = (_layers: Layer[], numberOfItems: number): string[][] => {
   const rand: () => number = (Rand as any)('hoge'); // TODO seed

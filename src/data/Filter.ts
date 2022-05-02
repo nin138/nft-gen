@@ -1,5 +1,5 @@
 import {Layer, LayerId, LayerItemId} from "./layer/layer";
-import {ItemIndexes} from "../logics/combine/getAll";
+import {ItemIndexes} from "../logics/createImages/types";
 
 export const FilterTypes = {
   Noop: 'Noop',
@@ -67,17 +67,40 @@ const compileFilter = (filter: Filter, layers: Layer[]): FilterCompiled => {
   }
 }
 
-const applyFilter = (indexed: ItemIndexes[], layers: Layer[], filter: FilterCompiled) => {
+export const compileFilters = (filters: Filter[], layers: Layer[]) => {
+  return filters.map((f) => compileFilter(f, layers));
+}
+
+const runUseWithFilter = (item: ItemIndexes, filter: UseWithFilterCompiled): boolean => {
+  return !(item[filter.l1] === filter.i1 && item[filter.l2] === filter.i2);
+}
+
+const runFilter = (item: ItemIndexes, filter: FilterCompiled): boolean => {
   switch (filter.type) {
     case FilterTypes.UseWith: {
-      return indexed.filter(it => !(it[filter.l1] === filter.i1 && it[filter.l2] === filter.i2));
+      return runUseWithFilter(item, filter);
+    }
+    case FilterTypes.Noop: return true;
+  }
+}
+
+const applyFilter = (indexed: ItemIndexes[], filter: FilterCompiled) => {
+  switch (filter.type) {
+    case FilterTypes.UseWith: {
+      return indexed.filter(it => runUseWithFilter(it, filter));
     }
     case FilterTypes.Noop: return indexed;
   }
 };
 
 
-export const applyFilters = (indexes: ItemIndexes[], layers: Layer[], _filters: Filter[]) => {
-  const filters = _filters.map((f) => compileFilter(f, layers));
-  return filters.reduce((prev, filter) => applyFilter(prev, layers, filter), indexes);
+export const applyFilters = (indexes: ItemIndexes[], layers: Layer[], filters: FilterCompiled[]) => {
+  return filters.reduce((prev, filter) => applyFilter(prev, filter), indexes);
 };
+
+export const isFiltered = (item: ItemIndexes, filters: FilterCompiled[]) => {
+  for (let filter of filters) {
+    if(!runFilter(item, filter)) return true;
+  }
+  return false;
+}

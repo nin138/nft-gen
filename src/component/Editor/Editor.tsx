@@ -18,17 +18,16 @@ const LayerList = styled('div')({
 type Props = {
   layers: Layer[]
   la: LayerActionCreator;
-  usedCount: number[][]
 }
 
-export const Editor: React.FC<Props> = ({layers, la, usedCount}) => {
+export const Editor: React.FC<Props> = ({layers, la}) => {
   return (
     <div style={{display: 'flex'}}>
       <Droppable droppableId={'Layer'} type={'Layer'}>
         {(drop) => (
           <LayerList ref={drop.innerRef} {...drop.droppableProps}>
             {layers.map((it, i) => (
-              <LayerEditor key={it.layerId} layer={it} la={la} index={i} usedCount={usedCount[i]}/>))}
+              <LayerEditor key={it.layerId} layer={it} la={la} index={i} />))}
             <AddLayer la={la}/>
             {drop.placeholder}
           </LayerList>

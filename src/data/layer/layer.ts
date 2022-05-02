@@ -16,8 +16,11 @@ export type Layer = {
 export type LayerItem = {
   itemId: LayerItemId;
   name: string;
+  weight: number;
   image: Image;
 }
+
+const defaultRarity = 50;
 
 export const createLayer = (name: string): Layer => ({
   layerId: createLayerId(),
@@ -28,5 +31,6 @@ export const createLayer = (name: string): Layer => ({
 export const createLayerItem = (name: string, image: Image): LayerItem => ({
   itemId: createLayerItemId(),
   name,
+  weight: defaultRarity,
   image,
 });
