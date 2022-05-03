@@ -15,7 +15,7 @@ const v1 = '8px';
 const v2 = '12px';
 const borderWidth = '3px';
 const borderColor = '#1117';
-const dotted: CSSProperties = {
+export const borderDotted: CSSProperties = {
   backgroundImage: `
   linear-gradient(to right, ${borderColor}, ${borderColor} ${v1}, transparent ${v1}, transparent ${v2}),
   linear-gradient(to bottom, ${borderColor}, ${borderColor} ${v1}, transparent ${v1}, transparent ${v2}),
@@ -47,7 +47,7 @@ const Container = styled('div')({
   borderRadius: 8,
   cursor: "pointer",
   margin: 12,
-  ...dotted,
+  ...borderDotted,
 });
 
 export const ImgDropZone: React.FC<Props> = ({layerId, la}) => {

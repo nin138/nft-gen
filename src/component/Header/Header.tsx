@@ -1,8 +1,5 @@
 import React from "react";
-import {Box, Paper, styled} from "@mui/material";
-import {theme} from "../../theme";
-
-
+import {styled} from "@mui/material";
 export const HEADER_HEIGHT = '60px';
 
 const H = styled('header')`
@@ -15,7 +12,7 @@ const H = styled('header')`
 export const Header: React.FC = () => {
   return (
     <H>
-      <h1>App</h1>
+      <h1>Tempura Generator</h1>
     </H>
   )
 };

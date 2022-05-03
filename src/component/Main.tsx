@@ -2,7 +2,7 @@ import React, {useCallback, useMemo, useRef, useState} from "react";
 import {useLayers} from "../data/layer/layerStore";
 import {Editor} from "./Editor/Editor";
 import {Fab, styled} from "@mui/material";
-import {CreateImageIcon, PreviewIcon} from "./Icons";
+import {CreateImageIcon, ExportIcon, ImportIcon, PreviewIcon} from "./Icons";
 import {useConfig} from "../data/configStore";
 import {GeneralEditor} from "./Layer/General";
 import {Preview, sliceArray} from "./Preview/Preview";
@@ -19,6 +19,8 @@ import {createImageData} from "../logics/createImages/createImageData";
 import {compileFilters} from "../data/Filter";
 import {indexToItem} from "../logics/createImages/getAllAndPick";
 import {exportPrj, importPrj} from "../logics/io/io";
+import {ImportPrjModal} from "./ImportPrjModal";
+import {ImageStorage} from "../logics/imageStorage";
 
 const Container = styled('div')({
   width: '90%',
@@ -57,6 +59,7 @@ export const Main: React.FC = () => {
   const aEl = useRef<HTMLAnchorElement>(null);
 
   const [dragging, setDragging] = useState(false);
+  const [openImportModal, setOpenImportModal] = useState(false);
 
   const onBeforeDragStart: DragDropContextProps['onBeforeDragStart'] = useCallback(() => {
     setDragging(true);
@@ -117,20 +120,21 @@ export const Main: React.FC = () => {
   const handleExport = async () => {
     const exp = await exportPrj(config, layers, f.filters, images);
     const date = new Date();
-    aEl.current!.href = window.URL.createObjectURL(exp as any);
-    aEl.current!.download = `${config.name}-${date.toLocaleDateString()}.json`;
+
+    aEl.current!.href = window.URL.createObjectURL(exp);
+    aEl.current!.download = `Tempuragen-${config.name}-${date.toLocaleDateString()}.zip`;
     aEl.current!.click();
   }
 
 
   const handleImport = () => {
-
+    setOpenImportModal(true);
   }
 
-  const onImport = async (json: string) => {
-    const prj = await importPrj(json);
+  const onImport = async (zip: File) => {
+    const prj = await importPrj(zip);
     setConfig(prj.config);
-    la.onRestore(prj.layers);
+    la.onRestore(await Promise.all(prj.layers.map(async it => ({...it, items: await Promise.all(it.items.map(async it => ({...it, image: await ImageStorage.restore(it.image.key)})))}))));
     actions.reinit(prj.fixed);
     f.reinitFilter(prj.filters);
   }
@@ -143,13 +147,13 @@ export const Main: React.FC = () => {
         <Filters layers={layers} f={f}/>
         <Editor layers={layers} la={la} />
         <FloatingButtonArea>
-          <FloatingButton color={"primary"} variant="extended" onClick={handleImport}>
-            <PreviewIcon sx={{mr: 1}}/>
-            Import
+          <FloatingButton color={"default"} variant="extended" onClick={handleImport}>
+            <ImportIcon sx={{mr: 1}}/>
+            Upload Saved File
           </FloatingButton>
-          <FloatingButton color={"primary"} variant="extended" onClick={handleExport}>
-            <PreviewIcon sx={{mr: 1}}/>
-            Export
+          <FloatingButton color={"default"} variant="extended" onClick={handleExport}>
+            <ExportIcon sx={{mr: 1}}/>
+            Save as File
           </FloatingButton>
           <FloatingButton color={"primary"} variant="extended" onClick={() => setPreview(!preview)}>
             <PreviewIcon sx={{mr: 1}}/>
@@ -166,6 +170,7 @@ export const Main: React.FC = () => {
         <a ref={aEl} style={{display: "none"}}/>
       </Container>
       <DeleteDroppable dragging={dragging}/>
+      <ImportPrjModal open={openImportModal} onImport={onImport} close={() => setOpenImportModal(false)} />
     </DragDropContext>
   );
 };

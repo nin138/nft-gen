@@ -3,42 +3,56 @@ import {Layer} from "../../data/layer/layer";
 import {Filter} from "../../data/Filter";
 import {FixedImage} from "../../data/fixedItems";
 import {ImageStorage} from "../imageStorage";
+import {createZip} from "../images/toZip";
+import Zip from 'jszip';
 
-export type IOImage = {
+export type IOImageDATA = {
   key: string;
   name: string;
-  data: string; // base64
 }
 export type Project = {
   config: Config,
   layers: Layer[],
   filters: Filter[],
   fixed: FixedImage[],
-  images: IOImage[]
+  images: IOImageDATA[],
 }
+const PRJ_FILENAME = '__PRJ.json';
 
-export const exportPrj = async (config: Config, layers: Layer[], filters: Filter[], fixed: FixedImage[]): Promise<string> => {
-  const images = await Promise.all(layers.flatMap(
-    l => l.items.map(async it =>
-      ({
-        key: it.image.key,
-        name: it.image.name,
-        data: Buffer.from(await (await ImageStorage.getBlob(it.image.key)).arrayBuffer()).toString('base64'),
-      }))
-  ));
+const getExt = (name: string) => name.split('.').pop();
+
+export const exportPrj = async (config: Config, layers: Layer[], filters: Filter[], fixed: FixedImage[]): Promise<Blob> => {
   const prj: Project = {
     config,
     layers,
     filters,
     fixed,
-    images: await Promise.all(images),
+    images: layers.flatMap(l => l.items.map(item => ({ key: item.image.key, name: item.image.name })))
   }
-  return JSON.stringify(prj);
+  const zip = createZip();
+  zip.addFile(PRJ_FILENAME, new Blob([JSON.stringify(prj)]));
+
+  await Promise.all(layers.flatMap(
+    l => l.items.map(async it => {
+      const blob = await ImageStorage.getBlob(it.image.key);
+      zip.addFile(it.image.key, blob);
+    })
+  ));
+  return zip.create();
 };
 
 
-export const importPrj = async (json: string): Promise<Project> => {
+export const importPrj = async (file: File): Promise<Project> => {
+  const zip = await new Zip().loadAsync(file);
+  const json = await zip.file(PRJ_FILENAME)?.async("string");
+  if(!json) throw new Error('invalid prj file');
   const prj: Project = JSON.parse(json);
-  await Promise.all(prj.images.map(it => ImageStorage.inputLoadedData(it.key, it.name, new Blob([Buffer.from(it.data, 'base64')]))));
+
+  await Promise.all(
+    Object.values(zip.files).map(async (file) => {
+    if(file.name === PRJ_FILENAME) {return;}
+    return ImageStorage.inputLoadedData(file.name, prj.images.find(it => it.key === file.name)?.name!, await file.async("blob"))
+  })
+  );
   return prj;
 };
