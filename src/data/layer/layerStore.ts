@@ -237,6 +237,11 @@ export class LayerActionCreator {
     layerId,
     layerItemId,
   });
+
+  onRestore = (layers: Layer[]) => this.dd({
+    type: ActionTypes.OnRestore,
+    layers,
+  });
 }
 
 type UseLayers = {

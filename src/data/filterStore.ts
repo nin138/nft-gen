@@ -16,6 +16,7 @@ export type FilterState = {
   updateFilter: (index: number, filter: Filter) => void;
   addFilter: (filter: Filter) => void;
   removeFilter: (index: number) => void;
+  reinitFilter: (filters: Filter[]) => void;
 }
 
 export const useFilter = (): FilterState => {
@@ -36,11 +37,13 @@ export const useFilter = (): FilterState => {
     window.addEventListener("beforeunload", cb);
     return () => window.removeEventListener("beforeunload", cb);
   }, []);
+  const reinitFilter = (filters: Filter[]) => setFilters(filters);
 
   return useMemo(() => ({
     filters,
     updateFilter,
     addFilter,
     removeFilter,
+    reinitFilter,
   }), [filters,]);
 }

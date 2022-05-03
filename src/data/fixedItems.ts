@@ -24,6 +24,7 @@ export type FixedImageActions = {
   add: (items: LayerItemId[]) => void;
   remove: (id: FixedItemId) => void;
   swap: (fromIndex: number, toIndex: number) => void;
+  reinit: (items: FixedImage[]) => void;
 }
 
 export type FixedImageState = {
@@ -42,7 +43,8 @@ export const useFixedImage = (): FixedImageState => {
     update: (id: FixedItemId, image: FixedImage) => setImages(images => images.map((it) => it.id === id ? image : it)),
     add: (items: LayerItemId[]) => setImages(images => [...images, createFixedItem(items)]),
     remove: (id: FixedItemId) => setImages(images => images.filter((it) => it.id !== id)),
-    swap: (fromIndex, toIndex) => setImages(images => reorder(images, fromIndex, toIndex))
+    swap: (fromIndex, toIndex) => setImages(images => reorder(images, fromIndex, toIndex)),
+    reinit: (items) => setImages(items),
   }), []);
   useEffect(() => {
     const data = FixedImageStorage.restore();

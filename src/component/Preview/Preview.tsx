@@ -6,7 +6,7 @@ import {scrollbarStyle} from "../Atoms/scrollbarStyle";
 import {PreviewCanvas} from "./PreviewCanvas";
 import {useElementRect} from "../useElementRect";
 import {FixedSizeList, ListChildComponentProps} from 'react-window';
-import {compileFilters, Filter, FilterCompiled} from "../../data/Filter";
+import {FilterCompiled} from "../../data/Filter";
 import {ItemIndexes} from "../../logics/createImages/types";
 import {createImageData} from "../../logics/createImages/createImageData";
 import {countUsed, indexToItem} from "../../logics/createImages/getAllAndPick";

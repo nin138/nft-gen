@@ -18,6 +18,7 @@ import {writeLog} from "../logics/console";
 import {createImageData} from "../logics/createImages/createImageData";
 import {compileFilters} from "../data/Filter";
 import {indexToItem} from "../logics/createImages/getAllAndPick";
+import {exportPrj, importPrj} from "../logics/io/io";
 
 const Container = styled('div')({
   width: '90%',
@@ -107,10 +108,31 @@ export const Main: React.FC = () => {
       }
       const data = await zip.create();
       aEl.current!.href = window.URL.createObjectURL(data as any);
-      aEl.current!.download = `${config.name}-${date.toLocaleDateString()}-${i.toString().padStart(2, '0')}`
+      aEl.current!.download = `${config.name}-${date.toLocaleDateString()}-${i.toString().padStart(2, '0')}.zip`
       aEl.current!.click();
     }
     setCreating(false);
+  }
+
+  const handleExport = async () => {
+    const exp = await exportPrj(config, layers, f.filters, images);
+    const date = new Date();
+    aEl.current!.href = window.URL.createObjectURL(exp as any);
+    aEl.current!.download = `${config.name}-${date.toLocaleDateString()}.json`;
+    aEl.current!.click();
+  }
+
+
+  const handleImport = () => {
+
+  }
+
+  const onImport = async (json: string) => {
+    const prj = await importPrj(json);
+    setConfig(prj.config);
+    la.onRestore(prj.layers);
+    actions.reinit(prj.fixed);
+    f.reinitFilter(prj.filters);
   }
 
   return (
@@ -121,6 +143,14 @@ export const Main: React.FC = () => {
         <Filters layers={layers} f={f}/>
         <Editor layers={layers} la={la} />
         <FloatingButtonArea>
+          <FloatingButton color={"primary"} variant="extended" onClick={handleImport}>
+            <PreviewIcon sx={{mr: 1}}/>
+            Import
+          </FloatingButton>
+          <FloatingButton color={"primary"} variant="extended" onClick={handleExport}>
+            <PreviewIcon sx={{mr: 1}}/>
+            Export
+          </FloatingButton>
           <FloatingButton color={"primary"} variant="extended" onClick={() => setPreview(!preview)}>
             <PreviewIcon sx={{mr: 1}}/>
             Preview

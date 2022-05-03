@@ -53,4 +53,16 @@ export const ImageStorage = {
       dataUrl: URL.createObjectURL(record.blob),
     }
   },
+  getBlob: async (key: string): Promise<Blob> => {
+    const record = await db.image.get(key);
+    if(!record) throw new Error('fail to load image');
+    return record.blob;
+  },
+  inputLoadedData: async (key: string, name: string, blob: Blob) => {
+    return db.image.put({
+      key,
+      name,
+      blob,
+    });
+  },
 };
