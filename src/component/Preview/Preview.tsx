@@ -10,6 +10,7 @@ import {FilterCompiled} from "../../data/Filter";
 import {ItemIndexes} from "../../logics/createImages/types";
 import {createImageData} from "../../logics/createImages/createImageData";
 import {countUsed, indexToItem} from "../../logics/createImages/getAllAndPick";
+import {UsedItemViewer} from "./UserdItemViewer/UsedItemViewer";
 
 const Container = styled('section')({
   width: '94vw',
@@ -23,27 +24,26 @@ const Container = styled('section')({
   left: '3vw',
   borderRadius: '5px',
   zIndex: 100,
-  flexWrap: 'wrap',
   display: 'flex',
-  alignItems: 'flex-start'
+  alignItems: 'flex-start',
+  padding: 32,
+  flexDirection: 'column',
+  flexWrap: 'nowrap',
 });
 
 const ScrollContainer = styled('section')({
   width: '100%',
-  height: '70vh',
-  margin: "auto",
   boxShadow: '0 0 10px #fff7',
   top: 0,
   left: '3vw',
   borderRadius: '5px',
   zIndex: 100,
-  flexWrap: 'wrap',
   display: 'flex',
-  alignItems: 'flex-start'
+  alignItems: 'flex-start',
+  flex:"0 0 calc(94vh - 300px - 64px - 100px)",
 });
 
 const List = styled(FixedSizeList)({
-  height: '90vh',
   overflowY: "scroll",
   overflowX: "hidden",
   ...scrollbarStyle,
@@ -105,7 +105,7 @@ export const Preview: React.FC<Props> = ({open, config, layers, filters, fixed})
   const rect = useElementRect(ref);
   const lineHeight = calcLineHeight(rect?.width || 0, config.size);
 
-  const listHeight = (rect?.height || 500) - 200;
+  const listHeight = (rect?.height || 500) - 16;
   const Row = ({index, style}: ListChildComponentProps) => (
     <Line key={index} style={style}>
       {lines[index].map((item, j) => (
@@ -118,25 +118,9 @@ export const Preview: React.FC<Props> = ({open, config, layers, filters, fixed})
   );
 
   return (
-    <Container style={{transform: !open ? 'translateY(105vh)': 'translateY(6vh)' }} ref={ref}>
-      {
-        used.map((items, l) => {
-          const layer = layers[l];
-          return (
-            <div key={layer.layerId}>
-            {layer.name}
-            {items.map((used, i) => {
-              const item = layer.items[i];
-              return(
-                <div key={item.itemId}>
-                  {item.name}: {used}
-                </div>
-              )
-            })}
-          </div>)
-        })
-      }
-      <ScrollContainer>
+    <Container style={{transform: !open ? 'translateY(105vh)': 'translateY(6vh)' }}>
+      <UsedItemViewer layers={layers} used={used} created={config.numberOfToken} />
+      <ScrollContainer ref={ref}>
         {lines.length === 0 && 'Please add more Items'}
         <List itemSize={lineHeight} height={listHeight} itemCount={lines.length} width={'100%'}>
           {Row}

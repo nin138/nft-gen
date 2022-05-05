@@ -94,13 +94,13 @@ export const Main: React.FC = () => {
     writeLog('end calc')
     const canvas = canvasEl.current!;
     const ctx = canvas.getContext('2d')!;
-    const itemList100 = sliceArray(indexToItem(layers, indexes), 1000);
+    const slicedItemList = sliceArray(indexToItem(layers, indexes), 1000);
     writeLog('end slice')
     let loop = 0;
     let i = 1;
     const date = new Date();
 
-    for (let itemList of itemList100) {
+    for (let itemList of slicedItemList) {
       const zip = createZip();
       loop++;
       writeLog(`zip loop: ${loop}`);
@@ -149,7 +149,7 @@ export const Main: React.FC = () => {
         <FloatingButtonArea>
           <FloatingButton color={"default"} variant="extended" onClick={handleImport}>
             <ImportIcon sx={{mr: 1}}/>
-            Upload Saved File
+            Load Saved File
           </FloatingButton>
           <FloatingButton color={"default"} variant="extended" onClick={handleExport}>
             <ExportIcon sx={{mr: 1}}/>

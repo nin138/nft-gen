@@ -8,7 +8,7 @@ import {writeLog} from "../console";
 export const createImageData = (layers: Layer[], numberOfTokens: number, filters: FilterCompiled[], fixed: ItemIndexes[]) => {
   const expect = layers.reduce((prev, current) => prev * current.items.length, 1);
   console.log(expect, numberOfTokens);
-  if(expect * 0.4 > numberOfTokens) {
+  if(expect * 0.4 > numberOfTokens || expect > 500000) {
     writeLog('using combine');
     return createByCombine(layers, numberOfTokens, filters, fixed);
   }
