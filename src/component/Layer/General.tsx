@@ -1,18 +1,21 @@
 import React from "react";
 import {styled, TextField} from "@mui/material";
 import {Config} from "../../data/configStore";
+import {MetadataInfo} from "../../nft/metadataStore";
 
 type Props = {
   config: Config
   setConfig: (conf: Config) => void;
-  generatable: number;
+  info: MetadataInfo;
+  setInfo: (info: MetadataInfo) => void;
+
 }
 
 const Container = styled('section')({
   margin: 16,
 });
 
-export const GeneralEditor: React.FC<Props> = ({config, setConfig, generatable}) => {
+export const GeneralEditor: React.FC<Props> = ({config, setConfig, info, setInfo}) => {
   return (
     <Container>
       <TextField
@@ -24,6 +27,8 @@ export const GeneralEditor: React.FC<Props> = ({config, setConfig, generatable})
       <TextField type={'number'} label={'width'} value={config.size.w} onChange={e => setConfig({...config, size: { w: +e.target.value, h: config.size.h }})} />
       <TextField type={'number'} label={'height'} value={config.size.h} onChange={e => setConfig({...config, size: { w: config.size.w, h: +e.target.value }})} />
       <TextField type={'number'} label={'number of token'} value={config.numberOfToken} onChange={e => setConfig({...config, numberOfToken: +e.target.value})} />
+      <TextField type={'text'} label={'nft description'} value={info.description} onChange={e => setInfo({...info, description: e.target.value})} multiline />
+      <TextField type={'text'} label={'baseUrl of image'} value={info.imageBaseUrl} onChange={e => setInfo({...info, imageBaseUrl: e.target.value})} />
     </Container>
   );
 }

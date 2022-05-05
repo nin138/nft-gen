@@ -12,7 +12,7 @@ import {useFilter} from "../data/filterStore";
 import {FixedImageList} from "./FixedItems/FixedImageList";
 import {FixedItemId, useFixedImage} from "../data/fixedItems";
 import {DragDropContext, DragDropContextProps} from "react-beautiful-dnd";
-import { LayerId, LayerItemId} from "../data/layer/layer";
+import {LayerId, LayerItemId} from "../data/layer/layer";
 import {DeleteDroppable} from "./Atoms/DeleteDroppable";
 import {writeLog} from "../logics/console";
 import {createImageData} from "../logics/createImages/createImageData";
@@ -21,6 +21,8 @@ import {indexToItem} from "../logics/createImages/getAllAndPick";
 import {exportPrj, importPrj} from "../logics/io/io";
 import {ImportPrjModal} from "./ImportPrjModal";
 import {ImageStorage} from "../logics/imageStorage";
+import {useMetaInfo} from "../nft/metadataStore";
+import {createMetadata} from "../nft/metadata";
 
 const Container = styled('div')({
   width: '90%',
@@ -60,6 +62,7 @@ export const Main: React.FC = () => {
 
   const [dragging, setDragging] = useState(false);
   const [openImportModal, setOpenImportModal] = useState(false);
+  const {info, setInfo} = useMetaInfo();
 
   const onBeforeDragStart: DragDropContextProps['onBeforeDragStart'] = useCallback(() => {
     setDragging(true);
@@ -110,15 +113,31 @@ export const Main: React.FC = () => {
         i++;
       }
       const data = await zip.create();
-      aEl.current!.href = window.URL.createObjectURL(data as any);
-      aEl.current!.download = `${config.name}-${date.toLocaleDateString()}-${i.toString().padStart(2, '0')}.zip`
+      aEl.current!.href = window.URL.createObjectURL(data);
+      aEl.current!.download = `${config.name}-${date.toLocaleDateString()}-${(i - 1000).toString().padStart(2, '0')}.zip`
       aEl.current!.click();
     }
     setCreating(false);
   }
 
+  const handleCreateMeta = async () => {
+    setCreating(true);
+    const indexes = createImageData(layers, config.numberOfToken, compiledFilters, fixedIndexes);
+
+    const zip = createZip();
+    indexes.forEach((items, i) => {
+      zip.addFile(`${i + 1}.json`, JSON.stringify(createMetadata(config.name, info, i, layers, items)))
+    });
+    const data = await zip.create();
+    const date = new Date();
+    aEl.current!.href = window.URL.createObjectURL(data);
+    aEl.current!.download = `${config.name}-${date.toLocaleDateString()}-metadata.zip`
+    aEl.current!.click();
+    setCreating(false);
+  }
+
   const handleExport = async () => {
-    const exp = await exportPrj(config, layers, f.filters, images);
+    const exp = await exportPrj(config, layers, f.filters, images, info);
     const date = new Date();
 
     aEl.current!.href = window.URL.createObjectURL(exp);
@@ -134,6 +153,7 @@ export const Main: React.FC = () => {
   const onImport = async (zip: File) => {
     const prj = await importPrj(zip);
     setConfig(prj.config);
+    setInfo(prj.meta);
     la.onRestore(await Promise.all(prj.layers.map(async it => ({...it, items: await Promise.all(it.items.map(async it => ({...it, image: await ImageStorage.restore(it.image.key)})))}))));
     actions.reinit(prj.fixed);
     f.reinitFilter(prj.filters);
@@ -142,7 +162,7 @@ export const Main: React.FC = () => {
   return (
     <DragDropContext onBeforeDragStart={onBeforeDragStart} onDragEnd={onDragEnd}>
       <Container>
-        <GeneralEditor config={config} setConfig={setConfig} generatable={0}/>
+        <GeneralEditor config={config} setConfig={setConfig} info={info} setInfo={setInfo} />
         <FixedImageList images={images} actions={actions} layers={layers} config={config}/>
         <Filters layers={layers} f={f}/>
         <Editor layers={layers} la={la} />
@@ -163,6 +183,11 @@ export const Main: React.FC = () => {
                           variant="extended" onClick={handleCreateImage}>
             <CreateImageIcon sx={{mr: 1}}/>
             Create Images
+          </FloatingButton>
+          <FloatingButton disabled={creating} color={'warning'}
+                          variant="extended" onClick={handleCreateMeta}>
+            <CreateImageIcon sx={{mr: 1}}/>
+            Create Metadata
           </FloatingButton>
         </FloatingButtonArea>
         {preview && <Preview open={preview} config={config} layers={layers} fixed={fixedIndexes} filters={compiledFilters} />}

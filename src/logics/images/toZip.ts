@@ -5,7 +5,7 @@ import {LayerItem} from "../../data/layer/layer";
 export const createZip = () => {
   const zip = new Zip();
   return {
-    addFile: (fileName: string, file: Blob) => zip.file(fileName, file),
+    addFile: (fileName: string, file: Blob | string) => zip.file(fileName, file),
     create: () => zip.generateAsync({ type: 'blob', platform: 'DOS'}),
   };
 }
