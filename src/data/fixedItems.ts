@@ -1,4 +1,4 @@
-import {Layer, LayerId, LayerItemId} from "./layer/layer";
+import {Layer, LayerItemId} from "./layer/layer";
 import {useMemo, useState, useEffect} from "react";
 import {nanoid} from "nanoid";
 import {reorder} from "./layer/layerStore";
@@ -64,4 +64,7 @@ export const useFixedImage = (): FixedImageState => {
   }), [actions, images]);
 }
 
-
+export const isFixedValid = (fixed: FixedImage, layers: Layer[]): boolean => {
+  const items = fixed.items.map((i, l) => layers[l]?.items.find(it => it.itemId === i));
+  return items.length === layers.length && !items.includes(undefined);
+}

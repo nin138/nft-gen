@@ -1,12 +1,11 @@
-import React, {useCallback, useState} from "react";
+import React from "react";
 import {styled} from "@mui/material";
-import {DragDropContext, DragDropContextProps, Droppable} from "react-beautiful-dnd";
-import {Layer, LayerId, LayerItemId} from "../../data/layer/layer";
+import {Droppable} from "react-beautiful-dnd";
+import {Layer} from "../../data/layer/layer";
 import {LayerActionCreator} from "../../data/layer/layerStore";
-import {GeneralEditor} from "../Layer/General";
 import {LayerEditor} from "../Layer/Layer";
 import {AddLayer} from "../LayerList/AddLayer";
-import {DeleteDroppable} from "../Atoms/DeleteDroppable";
+import {SectionTitle} from "../Atoms/SectionTitle";
 
 const LayerList = styled('div')({
   display: 'flex',
@@ -15,6 +14,10 @@ const LayerList = styled('div')({
   margin: 'auto',
 });
 
+const Section = styled('section')({
+  marginBottom: 120,
+})
+
 type Props = {
   layers: Layer[]
   la: LayerActionCreator;
@@ -22,17 +25,20 @@ type Props = {
 
 export const Editor: React.FC<Props> = ({layers, la}) => {
   return (
-    <div style={{display: 'flex'}}>
-      <Droppable droppableId={'Layer'} type={'Layer'}>
-        {(drop) => (
-          <LayerList ref={drop.innerRef} {...drop.droppableProps}>
-            {layers.map((it, i) => (
-              <LayerEditor key={it.layerId} layer={it} la={la} index={i} />))}
-            <AddLayer la={la}/>
-            {drop.placeholder}
-          </LayerList>
-        )}
-      </Droppable>
-    </div>
+    <Section>
+      <SectionTitle>Layers</SectionTitle>
+      <div style={{display: 'flex'}}>
+        <Droppable droppableId={'Layer'} type={'Layer'}>
+          {(drop) => (
+            <LayerList ref={drop.innerRef} {...drop.droppableProps}>
+              {layers.map((it, i) => (
+                <LayerEditor key={it.layerId} layer={it} la={la} index={i}/>))}
+              <AddLayer la={la}/>
+              {drop.placeholder}
+            </LayerList>
+          )}
+        </Droppable>
+      </div>
+    </Section>
   );
 };

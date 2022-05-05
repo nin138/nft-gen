@@ -3,6 +3,7 @@ import {Layer} from "../../data/layer/layer";
 import {Button} from "@mui/material";
 import {FilterState} from "../../data/filterStore";
 import {FilterSelector} from "./FilterSelector";
+import {SectionTitle} from "../Atoms/SectionTitle";
 
 interface Props {
   layers: Layer[];
@@ -23,10 +24,11 @@ export const Filters: React.FC<Props> = ({layers, f}) => {
     });
   };
   return (
-    <div>
+    <section>
+      <SectionTitle>Filters</SectionTitle>
       {f.filters.map((it, i) =>
         <FilterSelector key={i} layers={layers} filter={it} remove={() => f.removeFilter(i)} updateFilter={(filter) => f.updateFilter(i, filter)} />)}
       <Button variant={"outlined"} onClick={handleAddFilter}>ADD FILTER</Button>
-    </div>
+    </section>
   );
 }

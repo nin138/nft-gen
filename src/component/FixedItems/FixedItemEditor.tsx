@@ -60,7 +60,7 @@ type Props = {
 export const FixedItemEditor: React.FC<Props> = ({image, _layers, config, index, action}) => {
   const layers = _layers.filter(it => it.items.length !== 0);
   const items = image.items.map((i, l) => layers[l]?.items.find(it => it.itemId === i));
-  const valid = !items.includes(undefined);
+  const valid = items.length === layers.length && !items.includes(undefined);
 
   const update = (index: number) => (value: string) => {
     action.update(image.id, {
@@ -86,6 +86,7 @@ export const FixedItemEditor: React.FC<Props> = ({image, _layers, config, index,
                 {layers.map((item, l) => (
                   <Item key={l}>
                     <Img src={items[l]?.image.dataUrl} />
+                    <div>{item.name}</div>
                     <Select value={items[l]?.itemId || ''} onChange={update(l)}>
                       {layers[l].items.map(it => ({label: it.name, value: it.itemId})) || []}
                     </Select>

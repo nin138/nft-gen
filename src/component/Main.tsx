@@ -54,7 +54,7 @@ export const Main: React.FC = () => {
   const compiledFilters = useMemo(() => compileFilters(f.filters, layers), [f.filters, layers]);
   const fixedIndexes = useMemo(() => images
     .map(image => image.items.map((i, l) => layers[l]?.items.findIndex(it => it.itemId === i)))
-    .filter(it => !it.includes(-1)), [images, layers]);
+    .filter(it => !it.includes(-1) && it.length === layers.length), [images, layers]);
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const aEl = useRef<HTMLAnchorElement>(null);
 
