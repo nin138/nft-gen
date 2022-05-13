@@ -1,6 +1,7 @@
 import {createLayer, createLayerItem, Layer, LayerId, LayerItem, LayerItemId} from "./layer";
-import {useEffect, useMemo, useReducer, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useMemo, useReducer, useState} from "react";
 import {Image, ImageStorage} from "../../logics/imageStorage";
+import {Filter} from "../Filter";
 
 type Layers = Layer[]
 
@@ -211,11 +212,14 @@ export class LayerActionCreator {
     action,
   });
 
-  swapLayer = (from: number, to: number,) => this.dd({
-    type: ActionTypes.SwapLayer,
-    from,
-    to,
-  });
+  swapLayer = (from: number, to: number, onSwapLayer: (from: number, to: number) => void) => {
+    this.dd({
+      type: ActionTypes.SwapLayer,
+      from,
+      to,
+    });
+    onSwapLayer(from, to)
+  }
 
 
   swapLayerItem = (fromLayer: LayerId, toLayer: LayerId, from: number, to: number) => this.dd({

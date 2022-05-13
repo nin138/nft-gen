@@ -80,7 +80,7 @@ export const Main: React.FC = () => {
     else if (result.destination.droppableId === 'DLL') {
       la.rmLayer(result.draggableId as LayerId);
     } else if (result.destination.droppableId === 'Layer') {
-      la.swapLayer(result.source.index, result.destination?.index);
+      la.swapLayer(result.source.index, result.destination?.index, actions.onSwapLayer);
     } else if (result.destination.droppableId === 'DLI') {
       la.rmLayerItem(result.source.droppableId as LayerId, result.draggableId as LayerItemId);
     } else {
