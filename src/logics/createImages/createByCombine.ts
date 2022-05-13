@@ -15,7 +15,7 @@ export const createByCombine = (layers: Layer[], numberOfTokens: number, filters
   });
 
   for (let i = 0; i < numberOfTokens; i++) {
-    const r = find(layers, layerRemains, results, filters);
+    const r = findRec(layers, layerRemains, results, filters);
     if(r === null) {
       writeLog(layerRemains)
       console.log('results', results)
@@ -29,6 +29,14 @@ export const createByCombine = (layers: Layer[], numberOfTokens: number, filters
   const sliced = results.slice(fixLen);
   sliced.sort(() => rand() - 0.5);
   return [...fixed, ...sliced];
+}
+
+const findRec = (layers: Layer[], layerRemains: number[][], results: number[][], filters: FilterCompiled[]) => {
+  for(let cap = 0; cap < 20; cap++) {
+    const r = find(layers, layerRemains, results, filters, cap);
+    if(r) return r;
+  }
+  return null;
 }
 
 
@@ -49,12 +57,12 @@ const include = (items: ItemIndexes[], newItem: ItemIndexes) => {
   return false;
 }
 
-const find = (layers: Layer[], layerRemains: number[][], result: number[][], filters: FilterCompiled[]): number[] | null => {
+const find = (layers: Layer[], layerRemains: number[][], result: number[][], filters: FilterCompiled[], cap: number): number[] | null => {
   let data: number[][]  = Array(layers.length);
   let i = 0;
   for (let remains of layerRemains) {
     const indexes: number[] = [];
-    const max = remains.reduce((prev, current) => prev > current ? prev : current);
+    const max = remains.reduce((prev, current) => prev > current ? prev : current) - cap;
 
     for (let j = 0; j < remains.length; j++) {
       if(remains[j] >= max) {
