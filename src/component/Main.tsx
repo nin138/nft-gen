@@ -93,7 +93,7 @@ export const Main: React.FC = () => {
   const handleCreateImage = async () => {
     setCreating(true);
     writeLog('start create')
-    const indexes = createImageData(layers, config.numberOfToken, compiledFilters, fixedIndexes)
+    const indexes = createImageData(config.algorithm, layers, config.numberOfToken, compiledFilters, fixedIndexes)
     writeLog('end calc')
     const canvas = canvasEl.current!;
     const ctx = canvas.getContext('2d')!;
@@ -122,7 +122,7 @@ export const Main: React.FC = () => {
 
   const handleCreateMeta = async () => {
     setCreating(true);
-    const indexes = createImageData(layers, config.numberOfToken, compiledFilters, fixedIndexes);
+    const indexes = createImageData(config.algorithm, layers, config.numberOfToken, compiledFilters, fixedIndexes);
 
     const zip = createZip();
     indexes.forEach((items, i) => {

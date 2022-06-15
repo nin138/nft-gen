@@ -93,7 +93,7 @@ type Props = {
 }
 export const Preview: React.FC<Props> = ({open, config, layers, filters, fixed}) => {
   const data = useMemo(() => {
-    return createImageData(layers, config.numberOfToken, filters, fixed); //calcAllItem(fixed, layers, all, config.numberOfToken);
+    return createImageData(config.algorithm, layers, config.numberOfToken, filters, fixed); //calcAllItem(fixed, layers, all, config.numberOfToken);
   }, [filters, config.numberOfToken, fixed, layers]);
 
   const lines = useMemo(() => {

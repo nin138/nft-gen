@@ -5,10 +5,16 @@ export type Size = {
   h: number
 }
 
+export const AlgorithmTypes = {
+  'Std': 'Std',
+  'Combine': 'Combine',
+} as const;
+
 export type Config = {
   name: string
   size: Size
   numberOfToken: number;
+  algorithm: keyof typeof AlgorithmTypes
 }
 
 const defaultConfig: Config = {
@@ -18,16 +24,24 @@ const defaultConfig: Config = {
     h: 600,
   },
   numberOfToken: 100,
+  algorithm: AlgorithmTypes.Std,
 }
 
 const KEY = 'CONFIG_KEY';
+
+export const restoreConfig = (configLike: Partial<Config>): Config => {
+  return {
+    ...defaultConfig,
+    ...configLike,
+  }
+}
 
 const ConfigStorage = {
   save: (config: Config) => localStorage.setItem(KEY, JSON.stringify(config)),
   restore: (): Config | null => {
     const data = localStorage.getItem(KEY)
     if(!data) return null;
-    return JSON.parse(data);
+    return restoreConfig(JSON.parse(data));
   }
 }
 

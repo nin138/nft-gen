@@ -2,7 +2,7 @@ import React from "react";
 import {Select} from "../Atoms/Select";
 import {FilterTypes} from "./filterTypes";
 
-const maps = Object.entries(FilterTypes).map(([key, value]) => ({
+const maps = Object.entries(FilterTypes).filter(it => it[0] !== FilterTypes.Noop).map(([key, value]) => ({
   label: key,
   value,
 }));

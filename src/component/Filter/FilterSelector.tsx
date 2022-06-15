@@ -11,7 +11,6 @@ export type FilterProps = {
 }
 
 export const FilterSelector: React.FC<FilterProps> = ({layers, filter, remove, updateFilter}) => {
-  console.log(filter.type);
   switch (filter.type) {
     case FilterTypes.Noop: return null;
     case FilterTypes.MustNotUseWith: return <TwoLayerFilterEditor layers={layers} filter={filter} remove={remove} updateFilter={updateFilter} />

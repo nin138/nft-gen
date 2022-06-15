@@ -1,4 +1,4 @@
-import {Config} from "../../data/configStore";
+import {Config, restoreConfig} from "../../data/configStore";
 import {Layer} from "../../data/layer/layer";
 import {FixedImage} from "../../data/fixedItems";
 import {ImageStorage} from "../imageStorage";
@@ -49,11 +49,11 @@ export const importPrj = async (file: File): Promise<Project> => {
   const zip = await new Zip().loadAsync(file);
   const json = await zip.file(PRJ_FILENAME)?.async("string");
   if(!json) throw new Error('invalid prj file');
-  // for backward compatibility
 
-  const parsePrj = (json: string) => {
+  // for backward compatibility
+  const parsePrj = (json: string): Project => {
     const prj: Project = JSON.parse(json);
-    return {...prj, filters: prj.filters.map(replaceFilterTypeName)}
+    return { ...prj, filters: prj.filters.map(replaceFilterTypeName), config: restoreConfig(prj.config) }
   }
 
   const prj = parsePrj(json);

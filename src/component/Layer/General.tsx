@@ -1,7 +1,8 @@
 import React from "react";
 import {styled, TextField} from "@mui/material";
-import {Config} from "../../data/configStore";
+import {AlgorithmTypes, Config} from "../../data/configStore";
 import {MetadataInfo} from "../../nft/metadataStore";
+import {Select} from "../Atoms/Select";
 
 type Props = {
   config: Config
@@ -14,6 +15,11 @@ type Props = {
 const Container = styled('section')({
   margin: 16,
 });
+
+const algoSelectItems = Object.entries(AlgorithmTypes).map(([label, value]) => ({
+  label,
+  value
+}));
 
 export const GeneralEditor: React.FC<Props> = ({config, setConfig, info, setInfo}) => {
   return (
@@ -29,6 +35,9 @@ export const GeneralEditor: React.FC<Props> = ({config, setConfig, info, setInfo
       <TextField type={'number'} label={'number of token'} value={config.numberOfToken} onChange={e => setConfig({...config, numberOfToken: +e.target.value})} />
       <TextField type={'text'} label={'nft description'} value={info.description} onChange={e => setInfo({...info, description: e.target.value})} multiline />
       <TextField type={'text'} label={'baseUrl of image'} value={info.imageBaseUrl} onChange={e => setInfo({...info, imageBaseUrl: e.target.value})} />
+      <Select label={'algorithm'} value={config.algorithm} onChange={v => setConfig({...config, algorithm: v as keyof typeof AlgorithmTypes})}>
+        {algoSelectItems}
+      </Select>
     </Container>
   );
 }
