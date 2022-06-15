@@ -1,4 +1,4 @@
-import React, {useMemo, useRef} from "react";
+import React, {useMemo} from "react";
 import {Paper, styled} from "@mui/material";
 import {Layer} from "../../data/layer/layer";
 import {Config, Size} from "../../data/configStore";
@@ -6,11 +6,11 @@ import {scrollbarStyle} from "../Atoms/scrollbarStyle";
 import {PreviewCanvas} from "./PreviewCanvas";
 import {useElementRect} from "../useElementRect";
 import {FixedSizeList, ListChildComponentProps} from 'react-window';
-import {FilterCompiled} from "../../data/Filter";
 import {ItemIndexes} from "../../logics/createImages/types";
 import {createImageData} from "../../logics/createImages/createImageData";
 import {countUsed, indexToItem} from "../../logics/createImages/getAllAndPick";
 import {UsedItemViewer} from "./UserdItemViewer/UsedItemViewer";
+import {FilterCompiled} from "../Filter/filterTypes";
 
 const Container = styled('section')({
   width: '94vw',
@@ -101,8 +101,7 @@ export const Preview: React.FC<Props> = ({open, config, layers, filters, fixed})
   }, [layers, data]);
   const used = useMemo(() => countUsed(layers, data), [layers, data]);
 
-  const ref = useRef(null);
-  const rect = useElementRect(ref);
+  const {rect, ref} = useElementRect();
   const lineHeight = calcLineHeight(rect?.width || 0, config.size);
 
   const listHeight = (rect?.height || 500) - 16;
@@ -122,7 +121,8 @@ export const Preview: React.FC<Props> = ({open, config, layers, filters, fixed})
       <UsedItemViewer layers={layers} used={used} created={config.numberOfToken} />
       <ScrollContainer ref={ref}>
         {lines.length === 0 && 'Please add more Items'}
-        <List itemSize={lineHeight} height={listHeight} itemCount={lines.length} width={'100%'}>
+        <div ref={(a) => {}}></div>
+        <List ref={(a) => {}} itemSize={lineHeight} height={listHeight} itemCount={lines.length} width={'100%'}>
           {Row}
         </List>
       </ScrollContainer>

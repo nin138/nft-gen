@@ -1,24 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
-export const useElementRect = (ref: React.RefObject<HTMLElement | undefined>): DOMRect | undefined => {
+export const useElementRect = (): { rect: DOMRect | undefined, ref: (node: HTMLElement | SVGElement | null) => void } => {
   const [rect, setRect] = useState<DOMRect>();
+  const [dom, setDom] = useState<HTMLElement|SVGElement>();
+
+  const observer = useRef(new ResizeObserver(() => {}))
+  const ref = useCallback((node: HTMLElement | SVGElement | null) => {
+    observer.current.disconnect();
+    if(node === null) return;
+    setDom(node);
+    setRect(node?.getBoundingClientRect());
+    observer.current = new ResizeObserver(() => setRect(node.getBoundingClientRect()));
+    observer.current.observe(node.parentElement!);
+  }, []);
+
   useEffect(() => {
     const cb = () => {
-      if (ref.current) setRect(ref.current.getBoundingClientRect());
-    };
-
-    const observer = new ResizeObserver(cb);
-
-    if (ref.current) {
-      observer.observe(ref.current.parentElement!);
+      setRect(dom?.getBoundingClientRect());
+    }
+    if (dom) {
       window.addEventListener('resize', cb);
-      setRect(ref.current.getBoundingClientRect());
     }
 
     return () => {
-      observer.disconnect();
       window.removeEventListener('resize', cb);
     };
-  }, [ref.current]);
-  return rect;
+  }, [dom]);
+  return {
+    ref,
+    rect,
+  };
 };

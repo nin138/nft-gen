@@ -1,9 +1,10 @@
 import {Layer} from "../../data/layer/layer";
 import {createItemRemaining} from "../combine/combine";
 import {writeLog} from "../console";
-import { FilterCompiled, isFiltered} from "../../data/Filter";
+import { isFiltered} from "../../data/Filter";
 import * as Rand from 'seedrandom';
 import {ItemIndexes} from "./types";
+import {FilterCompiled} from "../../component/Filter/filterTypes";
 
 export const createByCombine = (layers: Layer[], numberOfTokens: number, filters: FilterCompiled[], fixed: ItemIndexes[]) => {
   const rand: () => number = (Rand as any)('hoge'); // TODO seed

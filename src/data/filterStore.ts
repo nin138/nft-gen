@@ -1,5 +1,14 @@
 import {useEffect, useMemo, useState} from "react";
-import {Filter} from "./Filter";
+import {Filter, FilterTypes} from "../component/Filter/filterTypes";
+
+export const replaceFilterTypeName = (filter: Filter): Filter => {
+  // @ts-ignore
+  if(filter.type === 'UseWith') {
+    return {...(filter as any), type: FilterTypes.MustNotUseWith} as Filter;
+  }
+  return filter;
+};
+
 
 const KEY = '_FILTER_'
 const FilterStorage = {
@@ -7,7 +16,8 @@ const FilterStorage = {
   restore: (): Filter[] => {
     const data = localStorage.getItem(KEY)
     if(!data) return [];
-    return JSON.parse(data);
+
+    return JSON.parse(data).map(replaceFilterTypeName);
   }
 }
 

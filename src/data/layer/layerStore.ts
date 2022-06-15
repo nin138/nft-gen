@@ -1,7 +1,6 @@
 import {createLayer, createLayerItem, Layer, LayerId, LayerItem, LayerItemId} from "./layer";
-import {Dispatch, SetStateAction, useEffect, useMemo, useReducer, useState} from "react";
+import {useEffect, useMemo, useReducer, useState} from "react";
 import {Image, ImageStorage} from "../../logics/imageStorage";
-import {Filter} from "../Filter";
 
 type Layers = Layer[]
 
@@ -126,8 +125,8 @@ export const reorder = <T extends unknown>(arr: T[], fromIndex: number, toIndex:
   return result;
 };
 
-const findLayerIndex = (layers: Layers, layerId: LayerId) => layers.findIndex(it => it.layerId === layerId);
-const findLayerItemIndex = (layer: Layer, itemId: LayerItemId) => layer.items.findIndex(it => it.itemId === itemId);
+// const findLayerIndex = (layers: Layers, layerId: LayerId) => layers.findIndex(it => it.layerId === layerId);
+// const findLayerItemIndex = (layer: Layer, itemId: LayerItemId) => layer.items.findIndex(it => it.itemId === itemId);
 
 const reducer = (layers: Layers, action: Actions): Layers => {
   switch (action.type) {

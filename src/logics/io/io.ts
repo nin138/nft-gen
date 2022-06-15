@@ -1,11 +1,12 @@
 import {Config} from "../../data/configStore";
 import {Layer} from "../../data/layer/layer";
-import {Filter} from "../../data/Filter";
 import {FixedImage} from "../../data/fixedItems";
 import {ImageStorage} from "../imageStorage";
 import {createZip} from "../images/toZip";
 import Zip from 'jszip';
 import {MetadataInfo} from "../../nft/metadataStore";
+import {Filter} from "../../component/Filter/filterTypes";
+import {replaceFilterTypeName} from "../../data/filterStore";
 
 export type IOImageDATA = {
   key: string;
@@ -21,9 +22,8 @@ export type Project = {
 }
 const PRJ_FILENAME = '__PRJ.json';
 
-const getExt = (name: string) => name.split('.').pop();
-
 export const exportPrj = async (config: Config, layers: Layer[], filters: Filter[], fixed: FixedImage[], meta: MetadataInfo): Promise<Blob> => {
+
   const prj: Project = {
     config,
     meta,
@@ -49,13 +49,19 @@ export const importPrj = async (file: File): Promise<Project> => {
   const zip = await new Zip().loadAsync(file);
   const json = await zip.file(PRJ_FILENAME)?.async("string");
   if(!json) throw new Error('invalid prj file');
-  const prj: Project = JSON.parse(json);
+  // for backward compatibility
+
+  const parsePrj = (json: string) => {
+    const prj: Project = JSON.parse(json);
+    return {...prj, filters: prj.filters.map(replaceFilterTypeName)}
+  }
+
+  const prj = parsePrj(json);
 
   await Promise.all(
     Object.values(zip.files).map(async (file) => {
     if(file.name === PRJ_FILENAME) {return;}
     return ImageStorage.inputLoadedData(file.name, prj.images.find(it => it.key === file.name)?.name!, await file.async("blob"))
-  })
-  );
+  }));
   return prj;
 };

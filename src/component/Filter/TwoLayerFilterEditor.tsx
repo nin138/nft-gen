@@ -3,17 +3,10 @@ import {Layer, LayerId, LayerItemId} from "../../data/layer/layer";
 import {
   isTwoLayerFilterValid,
 } from "../../data/Filter";
-import {Button, Paper, styled} from "@mui/material";
+import {Paper, styled} from "@mui/material";
 import {Select} from "../Atoms/Select";
-import {DeleteIcon} from "../Icons";
-import {DoNotUseWithFilter, Filter} from "./filterTypes";
-
-const Container = styled(Paper)({
-  display: 'flex',
-  padding: 12,
-  margin: '24px 0',
-  justifyContent: "space-between",
-});
+import {Filter, TwoLayerFilter} from "./filterTypes";
+import {FilterEditorContainer} from "./FilterEditorContainer";
 
 const Items = styled('div')({
   display: "flex",
@@ -33,25 +26,16 @@ const Img = styled('img')({
   width: 180,
 });
 
-const DelButton = styled(Button)({
-  width: 50,
-  height: 65,
-  border: "solid",
-  borderRadius: '50%',
-  justifySelf: 'flex-end',
-})
-
 type Props = {
   layers: Layer[]
-  filter: DoNotUseWithFilter
+  filter: TwoLayerFilter
   remove: () => void;
   updateFilter: (filter: Filter) => void;
 }
 
 const findLayer = (layers: Layer[], layerId: LayerId) => layers.find(it => it.layerId === layerId);
 
-export const UseWithFilterEditor: React.FC<Props> = ({layers, filter, remove, updateFilter}) => {
-
+export const TwoLayerFilterEditor: React.FC<Props> = ({layers, filter, remove, updateFilter}) => {
   const l1 = layers.find(it => it.layerId === filter.l1);
   const i1 = l1?.items.find(it => it.itemId === filter.i1);
 
@@ -61,9 +45,7 @@ export const UseWithFilterEditor: React.FC<Props> = ({layers, filter, remove, up
   const layerSelectItems = layers.filter(it => it.items.length !== 0).map(it => ({label: it.name, value: it.layerId}));
   const isValid = isTwoLayerFilterValid(filter, layers);
   return (
-    <Container elevation={4} style={{background: isValid ? undefined : '#a00'}}>
-      <div>
-      NAND FILTER { isValid ? '' : '(INVALID)' }
+    <FilterEditorContainer filter={filter} remove={remove} isValid={isValid} updateFilter={updateFilter}>
       <Items>
         <Item>
           <Img src={i1?.image.dataUrl} />
@@ -93,8 +75,6 @@ export const UseWithFilterEditor: React.FC<Props> = ({layers, filter, remove, up
           </Select>
         </Item>
       </Items>
-      </div>
-      <DelButton variant={"outlined"} onClick={remove}><DeleteIcon/></DelButton>
-    </Container>
+    </FilterEditorContainer>
   );
 }

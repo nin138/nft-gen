@@ -4,6 +4,7 @@ import {Button} from "@mui/material";
 import {FilterState} from "../../data/filterStore";
 import {FilterSelector} from "./FilterSelector";
 import {SectionTitle} from "../Atoms/SectionTitle";
+import {FilterTypes} from "./filterTypes";
 
 interface Props {
   layers: Layer[];
@@ -16,7 +17,7 @@ export const Filters: React.FC<Props> = ({layers, f}) => {
     const l2 = layers.find(it => it !== l1 && it.items.length !== 0);
     if(!l1 || !l2) return;
     f.addFilter({
-      type: "UseWith",
+      type: FilterTypes.MustNotUseWith,
       l1: l1.layerId,
       i1: l1.items[0].itemId,
       l2: l2.layerId,

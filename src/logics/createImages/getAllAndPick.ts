@@ -1,8 +1,9 @@
 import {Layer, LayerItem} from "../../data/layer/layer";
 import {createItemRemaining} from "../combine/combine";
-import {applyFilters, FilterCompiled} from "../../data/Filter";
+import {applyFilters} from "../../data/Filter";
 import {writeLog} from "../console";
 import type {ItemIndexes} from "./types";
+import {FilterCompiled} from "../../component/Filter/filterTypes";
 
 export const getAll = (layers: Layer[], filters: FilterCompiled[], fixedIndexes: ItemIndexes[]): ItemIndexes[] => {
   writeLog('getAll st')
@@ -43,7 +44,7 @@ export const pick = (layers: Layer[], _indexes: ItemIndexes[], numberOfToken: nu
 
   const result: ItemIndexes[] = Array(numberOfToken);
   for (let i = 0; i < numberOfToken; i++) {
-    if(i % 10 ===0) writeLog('pickloop: ' + i);
+    if(i % 100 ===0) writeLog('pickloop: ' + i);
     const vs = indexes.map(evaluate);
     // const max = v.reduce((prev, current, i) => prev[1] < current ? [i, current] : prev, [0, 0]);
     let max = vs[0];
