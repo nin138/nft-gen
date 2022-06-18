@@ -37,7 +37,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "serve": "serve -s build"
+    "serve": "serve -s build",
+    "build:v1": "PUBLIC_URL=/generator/v1 BUILD_PATH='./v1' react-scripts build"
   },
   "eslintConfig": {
     "extends": [

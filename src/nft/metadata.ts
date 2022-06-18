@@ -22,7 +22,7 @@ export type NFTAttribute = {
 const createAttribute = (indexes: ItemIndexes, layers: Layer[]): NFTAttribute[] => {
   return layers.map((it, i) => ({
     trait_type: it.name,
-    value: it.items[i].name,
+    value: it.items[indexes[i]].name,
   }));
 };
 
