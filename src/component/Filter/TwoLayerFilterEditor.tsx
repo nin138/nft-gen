@@ -5,7 +5,7 @@ import {
 } from "../../data/Filter";
 import {Paper, styled} from "@mui/material";
 import {Select} from "../Atoms/Select";
-import {Filter, TwoLayerFilter} from "./filterTypes";
+import {Filter, TwoLayerFilters} from "./filterTypes";
 import {FilterEditorContainer} from "./FilterEditorContainer";
 
 const Items = styled('div')({
@@ -28,7 +28,7 @@ const Img = styled('img')({
 
 type Props = {
   layers: Layer[]
-  filter: TwoLayerFilter
+  filter: TwoLayerFilters
   remove: () => void;
   updateFilter: (filter: Filter) => void;
 }
@@ -45,7 +45,7 @@ export const TwoLayerFilterEditor: React.FC<Props> = ({layers, filter, remove, u
   const layerSelectItems = layers.filter(it => it.items.length !== 0).map(it => ({label: it.name, value: it.layerId}));
   const isValid = isTwoLayerFilterValid(filter, layers);
   return (
-    <FilterEditorContainer filter={filter} remove={remove} isValid={isValid} updateFilter={updateFilter}>
+    <FilterEditorContainer filter={filter} remove={remove} isValid={isValid} updateFilter={updateFilter} layers={layers}>
       <Items>
         <Item>
           <Img src={i1?.image.dataUrl} />

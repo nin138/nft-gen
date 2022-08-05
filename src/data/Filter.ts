@@ -4,7 +4,11 @@ import {
   Filter,
   FilterCompiled,
   FilterTypes,
-  DoNotUseWithFilterCompiled, MustUseWithFilterCompiled, compileTwoLayerFilter, TwoLayerFilter
+  MustUseWithListFilterCompiled,
+  compileTwoLayerFilter,
+  TwoLayerFilter,
+  compileMustUseWithListFilter,
+  MustNotUseWithFilterCompiled, MustUseWithFilterCompiled
 } from "../component/Filter/filterTypes";
 
 export const findLayerIndexById = (layers: Layer[], id: LayerId): number => layers.findIndex(it => it.layerId === id);
@@ -25,6 +29,7 @@ const compileFilter = (filter: Filter, layers: Layer[]): FilterCompiled => {
     case FilterTypes.MustNotUseWith: return compileTwoLayerFilter(filter, layers);
     case FilterTypes.Noop: return filter;
     case FilterTypes.MustUseWith: return compileTwoLayerFilter(filter, layers);
+    case FilterTypes.MustUseWithList: return compileMustUseWithListFilter(filter, layers);
   }
 }
 
@@ -32,17 +37,22 @@ export const compileFilters = (filters: Filter[], layers: Layer[]) => {
   return filters.map((f) => compileFilter(f, layers));
 }
 
-const runMustNotUseWithFilter = (item: ItemIndexes, filter: DoNotUseWithFilterCompiled): boolean => {
+const runMustNotUseWithFilter = (item: ItemIndexes, filter: MustNotUseWithFilterCompiled): boolean => {
   return !(item[filter.l1] === filter.i1 && item[filter.l2] === filter.i2);
 }
-
-
 
 const runMustUseWithFilter = (item: ItemIndexes, filter: MustUseWithFilterCompiled): boolean => {
   if(item[filter.l1] === filter.i1) {
     return item[filter.l2] === filter.i2;
   }
   return item[filter.l2] !== filter.i2;
+};
+
+const runMustUseWithListFilter = (item: ItemIndexes, filter: MustUseWithListFilterCompiled): boolean => {
+  if(item[filter.left] === filter.leftItem) {
+    return filter.items.some(it => item[filter.right] === it);
+  }
+  return true;
 };
 
 const runFilter = (item: ItemIndexes, filter: FilterCompiled): boolean => {
@@ -52,6 +62,7 @@ const runFilter = (item: ItemIndexes, filter: FilterCompiled): boolean => {
     }
     case FilterTypes.Noop: return true;
     case FilterTypes.MustUseWith: return runMustUseWithFilter(item, filter);
+    case FilterTypes.MustUseWithList: return runMustUseWithListFilter(item, filter);
   }
 }
 
@@ -63,6 +74,9 @@ const applyFilter = (indexed: ItemIndexes[], filter: FilterCompiled): ItemIndexe
     case FilterTypes.Noop: return indexed;
     case FilterTypes.MustUseWith: {
       return indexed.filter(it => runMustUseWithFilter(it, filter));
+    }
+    case FilterTypes.MustUseWithList: {
+      return indexed.filter(it => runMustUseWithListFilter(it, filter));
     }
   }
 };
