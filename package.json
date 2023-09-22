@@ -38,7 +38,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build",
-    "pages": "PUBLIC_URL=/ BUILD_PATH='./pages' react-scripts build"
+    "pages": "PUBLIC_URL=/ BUILD_PATH='docs' react-scripts build"
   },
   "eslintConfig": {
     "extends": [
