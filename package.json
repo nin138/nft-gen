@@ -38,7 +38,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build",
-    "pages": "PUBLIC_URL=/ BUILD_PATH='docs' react-scripts build"
+    "pages": "GENERATE_SOURCEMAP=false PUBLIC_URL=/nft-gen BUILD_PATH='docs' react-scripts build"
   },
   "eslintConfig": {
     "extends": [
